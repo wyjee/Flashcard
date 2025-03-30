@@ -1,0 +1,49 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual environment
+venv/
+.env
+.env.*        # .env.test, .env.prod 등
+
+# IDE / Editor settings
+.vscode/
+.idea/
+*.swp
+
+# Distribution / packaging
+build/
+dist/
+*.egg-info/
+
+# Pytest / coverage
+htmlcov/
+.tox/
+.coverage
+.cache
+.pytest_cache/
+
+# Logs
+*.log
+
+# SQLite DB (테스트용)
+*.sqlite3
+*.db
+
+# Jupyter / IPython
+.ipynb_checkpoints
+*.ipynb
+
+# macOS files
+.DS_Store
+
+# mypy / pylint / other tools
+.mypy_cache/
+.dmypy.json
+.pyre/
+.pytype/
+
+# Pydantic compiled schema cache
+__pydantic_cache__/
