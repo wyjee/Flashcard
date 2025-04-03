@@ -47,3 +47,6 @@ htmlcov/
 
 # Pydantic compiled schema cache
 __pydantic_cache__/
+
+# env files
+.env*
