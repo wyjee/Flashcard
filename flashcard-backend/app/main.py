@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from app.db.session import engine, Base
 from app.models import *
-from app.routers import users, topics, qnas
+from app.routers import auth, topics, qnas
 from fastapi.middleware.cors import CORSMiddleware
 from dotenv import load_dotenv
 import os
@@ -20,7 +20,7 @@ app.add_middleware(
 
 Base.metadata.create_all(bind=engine)
 
-app.include_router(users.router, prefix="/users", tags=["Users"])
+app.include_router(auth.router, prefix="/auth", tags=["Auth"])
 app.include_router(topics.router, prefix="/topics", tags=["Topics"])
 app.include_router(qnas.router, prefix="/qnas", tags=["QNA"])
 

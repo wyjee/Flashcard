@@ -5,7 +5,7 @@ from typing import Optional, List
 from app.db.session import get_db
 from app.models.topic import Topic
 from app.schemas.topic import TopicCreate, TopicOut
-from app.routers.users import get_current_user, get_optional_user
+from app.routers.auth import get_current_user, get_optional_user
 from app.models.user import User
 
 router = APIRouter()

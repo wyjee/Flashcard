@@ -4,7 +4,7 @@ from app.db.session import get_db
 from app.models.qna import QNA
 from app.models.topic import Topic
 from app.schemas.qna import QNACreate, QNAOut
-from app.routers.users import get_current_user
+from app.routers.auth import get_current_user
 from app.models.user import User
 
 router = APIRouter()

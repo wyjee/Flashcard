@@ -1,5 +1,5 @@
 def test_signup_success(client):
-    res = client.post("/users/signup", json={
+    res = client.post("/auth/signup", json={
         "username": "testuser",
         "email": "test@example.com",
         "password": "testpass"
@@ -14,7 +14,7 @@ def test_signup_success(client):
     db.close()
 
 def test_login_success(client):
-    res = client.post("/users/login", data={
+    res = client.post("/auth/login", data={
         "username": "testuser",
         "password": "testpass"
     })

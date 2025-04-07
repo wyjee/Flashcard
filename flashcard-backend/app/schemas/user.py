@@ -15,7 +15,7 @@ class UserOut(BaseModel):
         orm_mode = True
 
 class UserLogin(BaseModel):
-    username: str
+    identifier: str             # 아이디 입력: email Or username
     password: str
 
 class UserUpdate(BaseModel):

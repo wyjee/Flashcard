@@ -16,7 +16,7 @@ from app.utils.auth import (
 
 router = APIRouter()
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/users/login", auto_error=False)
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/login", auto_error=False)
 
 # --------------------------------------------------
 # 테스트
@@ -24,7 +24,7 @@ oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/users/login", auto_error=False)
 
 @router.get("/test")
 def test_user():
-    return {"msg": "Hello, World!"}
+    return {"msg": "Hello, User!"}
 
 # --------------------------------------------------
 # 인증
@@ -67,9 +67,14 @@ def get_optional_user(
 
 @router.post("/signup", response_model=UserOut, status_code=status.HTTP_201_CREATED)
 def signup(user: UserCreate, db: Session = Depends(get_db)):
-    existing = db.query(User).filter(User.username == user.username).first()
-    if existing:
-        raise HTTPException(status_code=400, detail="Username already exists")
+    existing_user = db.query(User).filter(
+        (User.username == user.username) | User.email == user.email
+    ).first()
+    if existing_user:
+        if existing_user.username == user.username
+            raise HTTPException(status_code=400, detail="Username already exists")
+        if existing_user.email == user.email
+            raise HTTPException(status_code=400, detail="Email already exists")
 
     hashed_pw = hash_password(user.password)
     new_user = User(
@@ -88,10 +93,17 @@ def signup(user: UserCreate, db: Session = Depends(get_db)):
 
 @router.post("/login")
 def login(
-        form_data: OAuth2PasswordRequestForm = Depends(),
+        (form_data: OAuth2PasswordRequestForm = Depends),
         db: Session = Depends(get_db)
 ):
-    user = db.query(User).filter(User.username == form_data.username).first()
+    from sqlalchemy import or_
+
+    user = db.query(User).filter(
+        or_(
+            User.username == form_data.username,
+            User.email == form_data.username
+        )
+    ).first()
     if not user or not verify_password(form_data.password, user.hashed_password):
         raise HTTPException(status_code=400, detail="Incorrect username or password")
 
@@ -112,8 +124,10 @@ def update_me(
         db: Session = Depends(get_db),
         current_user: User = Depends(get_current_user)
 ):
+    if update.username:
+        current_user.username = update.username
     if update.email:
-        current_user.email = update.email
+        raise HTTPException(status_code=400, detail="Email cannot be updated")
 
     db.commit()
     db.refresh(current_user)

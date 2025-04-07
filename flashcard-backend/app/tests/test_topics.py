@@ -1,5 +1,5 @@
 def test_create_topic_success(client):
-    login = client.post("/users/login", data={
+    login = client.post("/auth/login", data={
         "username": "testuser",
         "password": "testpass"
     })
@@ -15,7 +15,7 @@ def test_create_topic_success(client):
     assert res.json()["title"] == "테스트 토픽"
 
 def test_create_topic_invalid_type(client):
-    login = client.post("/users/login", data={
+    login = client.post("/auth/login", data={
         "username": "testuser",
         "password": "testpass"
     })
