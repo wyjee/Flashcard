@@ -1,11 +1,11 @@
-const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8000';
+import axios from 'axios'
 
-export async function getTopics() {
-  const res = await fetch(`${API_BASE}/topics`);
-  return res.json();
-}
+const api = axios.create({
+  baseURL: process.env.NEXT_PUBLIC_API_BASE_URL || '',
+  withCredentials: true,
+  headers: {
+    'Content-Type': 'application/json',
+  },
+})
 
-export async function getTopicDetails(id: string) {
-  const res = await fetch(`${API_BASE}/topics/${id}`);
-  return res.json();
-}
+export default api

@@ -1,31 +1,22 @@
 'use client';
 
-import { useEffect, useState } from 'react';
-import Link from 'next/link';
-import { getTopics } from '@/lib/api';
+import TopicListItem from "@/components/topics/TopicListItem";
+import {useTopics} from "@/hooks/UseTopics";
 
-type Topic = {
-  id: number;
-  title: string;
-};
 
 export default function TopicListPage() {
-  const [topics, setTopics] = useState<Topic[]>([]);
+    const {data: topics, isLoading, isError} = useTopics();
 
-  useEffect(() => {
-    getTopics().then(setTopics);
-  }, []);
+    if (isLoading) return <p>Loading...</p>;
+    if (isError || !topics) return <p>Something went wrong</p>;
 
-  return (
-    <div className="p-6">
-      <h1 className="text-xl font-bold mb-4">📒 Topic List</h1>
-      <div className="space-y-2">
-        {topics.map((topic) => (
-          <Link key={topic.id} href={`/topics?id=${topic.id}`}>
-            <div className="border rounded p-3 hover:bg-gray-100 cursor-pointer">{topic.title}</div>
-          </Link>
-        ))}
-      </div>
-    </div>
-  );
+
+    return (
+        <div className="p-6">
+            <h1 className="text-xl font-bold mb-4">📒 Topic List</h1>
+            <div className="space-y-2">
+                {topics.map((topic) => <TopicListItem key={topic.id} topic={topic}/>)}
+            </div>
+        </div>
+    );
 }
