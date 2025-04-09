@@ -21,3 +21,13 @@ class TopicOut(TopicBase):
 
     class Config:
         orm_mode = True
+
+class TopicWithQnaOut(BaseModel):
+    id: int
+    title: str
+    description: str
+    is_public: bool
+    qnas: List[QNAOut]
+
+    class Config:
+        from_attributes = True

@@ -1,12 +1,14 @@
-from fastapi import APIRouter, Depends, HTTPException, status
-from sqlalchemy.orm import Session
 from typing import Optional, List
+
+from fastapi import APIRouter, Depends, HTTPException
+from sqlalchemy.orm import Session
+from sqlalchemy.orm import selectinload
 
 from app.db.session import get_db
 from app.models.topic import Topic
-from app.schemas.topic import TopicCreate, TopicOut
-from app.routers.auth import get_current_user, get_optional_user
 from app.models.user import User
+from app.routers.auth import get_current_user, get_optional_user
+from app.schemas.topic import TopicCreate, TopicOut, TopicWithQnaOut
 
 router = APIRouter()
 
@@ -39,12 +41,12 @@ def get_topics(
         # 로그인 x, 퍼블릭 토픽만.
         return db.query(Topic).filter(Topic.is_public == True).all()
 
-@router.get("/{topic_id}", response_model=TopicOut)
-def get_topic_detail(
-        topic_id: int,
-        db: Session = Depends(get_db)
-):
-    topic = db.query(Topic).filter(Topic.id == topic_id).first()
+
+@router.get("/{topic_id}", response_model=TopicWithQnaOut)
+def get_topic_with_qnas(topic_id: int, db: Session = Depends(get_db)):
+    topic = db.query(Topic).options(selectinload(Topic.qnas)) \
+        .filter(Topic.id == topic_id).first()
+
     if not topic:
         raise HTTPException(status_code=404, detail="Topic not found")
 
