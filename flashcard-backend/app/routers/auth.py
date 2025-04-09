@@ -1,9 +1,11 @@
-from fastapi import APIRouter, HTTPException, Depends, status
+from fastapi import APIRouter, HTTPException, Depends, status, Request
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from sqlalchemy.orm import Session
 from typing import Optional
+from fastapi.responses import JSONResponse
 
 from passlib.context import CryptContext
+from sqlalchemy import or_
 
 from app.db.session import get_db
 from app.models.user import User
@@ -34,9 +36,12 @@ def hash_password(password: str) -> str:
     return pwd_context.hash(password)
 
 def get_current_user(
-        token: str = Depends(oauth2_scheme),
+        request: Request,
+        token: Optional[str] = Depends(oauth2_scheme),
         db: Session = Depends(get_db)
 ) -> User:
+    if not token:
+        token = request.cookies.get("access_token")
     username = decode_access_token(token)
     if not username:
         raise HTTPException(status_code=401, detail="Invalid token")
@@ -48,9 +53,12 @@ def get_current_user(
     return user
 
 def get_optional_user(
+        request: Request,
         token: Optional[str] = Depends(oauth2_scheme),
         db: Session = Depends(get_db)
 ) -> Optional[User]:
+    if not token:
+        token = request.cookies.get("access_token")
     if not token:
         return None
 
@@ -68,12 +76,12 @@ def get_optional_user(
 @router.post("/signup", response_model=UserOut, status_code=status.HTTP_201_CREATED)
 def signup(user: UserCreate, db: Session = Depends(get_db)):
     existing_user = db.query(User).filter(
-        (User.username == user.username) | User.email == user.email
+        (User.username == user.username) | (User.email == user.email)
     ).first()
     if existing_user:
-        if existing_user.username == user.username
+        if existing_user.username == user.username:
             raise HTTPException(status_code=400, detail="Username already exists")
-        if existing_user.email == user.email
+        if existing_user.email == user.email:
             raise HTTPException(status_code=400, detail="Email already exists")
 
     hashed_pw = hash_password(user.password)
@@ -93,11 +101,9 @@ def signup(user: UserCreate, db: Session = Depends(get_db)):
 
 @router.post("/login")
 def login(
-        (form_data: OAuth2PasswordRequestForm = Depends),
+        form_data: OAuth2PasswordRequestForm = Depends(),
         db: Session = Depends(get_db)
 ):
-    from sqlalchemy import or_
-
     user = db.query(User).filter(
         or_(
             User.username == form_data.username,
@@ -108,7 +114,26 @@ def login(
         raise HTTPException(status_code=400, detail="Incorrect username or password")
 
     access_token = create_access_token(data={"sub": user.username})
-    return {"access_token": access_token, "token_type": "bearer"}
+    response = JSONResponse(content={"msg": "Login successful"})
+    response.set_cookie(
+        key="access_token",
+        value=access_token,
+        httponly=True,
+        secure=True,
+        samesite="Lax",
+        max_age=60 * 60
+    )
+    return response
+
+# --------------------------------------------------
+# 로그아웃
+# --------------------------------------------------
+
+@router.post("/logout")
+def logout():
+    response = JSONResponse(content={"msg": "Logged out"})
+    response.delete_cookie("access_token")
+    return response
 
 # --------------------------------------------------
 # 유저 정보
@@ -141,3 +166,4 @@ def delete_me(
     db.delete(current_user)
     db.commit()
     return
+
