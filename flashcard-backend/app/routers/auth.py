@@ -79,10 +79,8 @@ def signup(user: UserCreate, db: Session = Depends(get_db)):
         (User.username == user.username) | (User.email == user.email)
     ).first()
     if existing_user:
-        if existing_user.username == user.username:
-            raise HTTPException(status_code=400, detail="Username already exists")
-        if existing_user.email == user.email:
-            raise HTTPException(status_code=400, detail="Email already exists")
+        field = "Username" if existing_user.username == user.username else "Email"
+        raise HTTPException(status_code=400, detail=f"{field} already exists")
 
     hashed_pw = hash_password(user.password)
     new_user = User(
