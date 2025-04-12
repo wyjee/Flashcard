@@ -1,18 +1,19 @@
 'use client'
 
-import { useState } from 'react'
+import {useState} from 'react'
 import Link from 'next/link'
-import { useRouter } from 'next/navigation'
-import { useLogin } from '@/hooks/useLogin'
+import {useRouter} from 'next/navigation'
+import {useLogin} from '@/hooks/useLogin'
+import {AxiosError} from 'axios';
 
 export default function LoginPage() {
     const router = useRouter()
-    const [form, setForm] = useState({ username: '', password: '' })
+    const [form, setForm] = useState({username: '', password: ''})
     const [error, setError] = useState('')
     const login = useLogin()
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        setForm({ ...form, [e.target.name]: e.target.value })
+        setForm({...form, [e.target.name]: e.target.value})
     }
 
     const handleSubmit = async (e: React.FormEvent) => {
@@ -20,14 +21,16 @@ export default function LoginPage() {
         try {
             await login.mutateAsync(form)
             router.push('/')
-        } catch (err: any) {
-            const msg = err?.response?.data?.detail || 'Login failed'
+        } catch (err: unknown) {
+            const axiosError = err as AxiosError<{ detail?: string }>;
+            const msg = axiosError?.response?.data?.detail || 'Login failed'
             setError(msg)
         }
     }
 
     return (
-        <div className="min-h-screen flex items-center justify-center bg-background-light dark:bg-background-dark text-text-light dark:text-text-dark px-4">
+        <div
+            className="min-h-screen flex items-center justify-center bg-background-light dark:bg-background-dark text-text-light dark:text-text-dark px-4">
             <div className="w-full max-w-sm bg-surface-light dark:bg-surface-dark p-6 rounded-xl shadow">
                 <h2 className="text-center text-2xl font-bold mb-6 text-slate-600 dark:text-slate-400">
                     Welcome Back
@@ -37,6 +40,7 @@ export default function LoginPage() {
                     <input
                         type="text"
                         name="username"
+                        disabled={login.isPending}
                         placeholder="Username or Email"
                         onChange={handleChange}
                         value={form.username}
@@ -45,6 +49,7 @@ export default function LoginPage() {
                     <input
                         type="password"
                         name="password"
+                        disabled={login.isPending}
                         placeholder="Password"
                         onChange={handleChange}
                         value={form.password}
@@ -55,6 +60,7 @@ export default function LoginPage() {
 
                     <button
                         type="submit"
+                        disabled={login.isPending}
                         className="w-full bg-slate-500 hover:bg-slate-600 text-white py-2 rounded font-semibold transition"
                     >
                         Log In
