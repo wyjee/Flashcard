@@ -19,3 +19,10 @@ class QNAOut(QNABase):
 
     class Config:
         orm_mode = True
+
+class MultipleQNACreate(BaseModel):  # topic_id 제거된 유닛
+    question: str
+    answer: str
+
+class MultiQNACreate(BaseModel):
+    qnas: List[MultipleQNACreate]

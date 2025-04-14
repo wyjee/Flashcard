@@ -49,7 +49,14 @@ def get_current_user(
     if not token:
         token = request.cookies.get("access_token")
 
-    username = decode_access_token(token)
+    if not token:
+        raise HTTPException(status_code=401, detail="Token not provided")
+
+    try:
+        username = decode_access_token(token)
+    except Exception:
+        raise HTTPException(status_code=401, detail="Invalid token")
+
     if not username:
         raise HTTPException(status_code=401, detail="Invalid token")
 

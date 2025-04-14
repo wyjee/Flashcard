@@ -7,8 +7,10 @@ from sqlalchemy.orm import selectinload
 from app.db.session import get_db
 from app.models.topic import Topic
 from app.models.user import User
+from app.models.qna import QNA
 from app.routers.auth import get_current_user, get_optional_user
 from app.schemas.topic import TopicCreate, TopicOut, TopicWithQnaOut
+from app.schemas.qna import MultiQNACreate
 
 router = APIRouter()
 
@@ -28,6 +30,34 @@ def create_topic(
     db.commit()
     db.refresh(new_topic)
     return new_topic
+
+
+@router.post("/{topic_id}/qnas", status_code=201)
+def create_multiple_qnas(
+        topic_id: int,
+        payload: MultiQNACreate,
+        db: Session = Depends(get_db),
+        current_user: User = Depends(get_current_user)
+):
+    topic = db.query(Topic).filter(Topic.id == topic_id).first()
+
+    if not topic:
+        raise HTTPException(status_code=404, detail="Topic not found")
+    if topic.user_id != current_user.id:
+        raise HTTPException(status_code=403, detail="Not your topic")
+
+    new_qnas = []
+    for qna in payload.qnas:
+        new_qna = QNA(
+            topic_id=topic_id,
+            question=qna.question,
+            answer=qna.answer,
+        )
+        db.add(new_qna)
+        new_qnas.append(new_qna)
+
+    db.commit()
+    return {"created": len(new_qnas)}
 
 @router.get("/", response_model=List[TopicOut])
 def get_topics(
