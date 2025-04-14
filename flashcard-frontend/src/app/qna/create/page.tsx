@@ -25,7 +25,11 @@ export default function CreateQnaPage() {
         },
     });
 
-    const handleChange = (index: number, name: keyof Qna, value: string) => {
+    const handleChange = <K extends keyof Qna>(
+        index: number,
+        name: K,
+        value: Qna[K]
+    ) => {
         const newQnas: Qna[] = [...qnas];
         newQnas[index][name] = value;
         setQnas(newQnas);

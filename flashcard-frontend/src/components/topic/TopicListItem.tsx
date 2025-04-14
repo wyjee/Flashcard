@@ -1,8 +1,8 @@
 import Link from "next/link";
-import {TopicItem} from "@/types/TopicListItem";
+import {Topic} from "@/types/Topic";
 
 type Props = {
-    topic: TopicItem;
+    topic: Topic;
 };
 
 const TopicListItem = ({topic}: Props) => {
