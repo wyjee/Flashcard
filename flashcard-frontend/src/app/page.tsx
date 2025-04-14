@@ -1,5 +1,5 @@
 'use client'
-import TopicListItem from "@/components/topics/TopicListItem";
+import TopicListItem from "@/components/topic/TopicListItem";
 import PageWrapper from "@/components/layout/PageWrapper";
 import {useTopics} from "@/hooks/UseTopics";
 import {useCurrentUser} from "@/hooks/useCurrentUser";

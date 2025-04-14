@@ -11,7 +11,7 @@ export default function TopicDetailPage() {
     const searchParams = useSearchParams();
     const topicId = searchParams.get('id');
     const [currentIndex, setCurrentIndex] = useState(0);
-    const {data: topicDetail, isLoading, isError} = useTopicDetail(topicId);
+    const {data: topicDetail, isLoading, isError} = useTopicDetail(Number(topicId));
 
     useEffect(() => {
         if (topicId) setCurrentIndex(0);
@@ -33,7 +33,7 @@ export default function TopicDetailPage() {
 
     return (
         <div className="p-6 flex flex-col items-center gap-4">
-            <h1 className="text-xl font-bold mb-2">🧠 QNAs for Topic {topicId}</h1>
+            <h1 className="text-xl font-bold mb-2">QNAs for Topic {topicId}</h1>
 
             <div className="relative w-full h-[300px] flex items-center justify-center overflow-hidden">
                 <AnimatePresence mode="wait">
@@ -70,7 +70,7 @@ export default function TopicDetailPage() {
             </p>
 
             <Link
-                href="/topics/list"
+                href="/topic/list"
                 className="fixed bottom-4 right-4 bg-gray-800 text-white text-sm px-4 py-2 rounded shadow hover:bg-gray-700 transition"
             >
                 ← Back To List

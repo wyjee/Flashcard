@@ -1,7 +1,7 @@
-'use client'
+'use client';
 
-import { useRouter } from 'next/navigation';
-import { useState } from 'react';
+import {useRouter} from 'next/navigation';
+import {useState} from 'react';
 
 export default function LogoutDialog({ open, onClose }: { open: boolean; onClose: () => void }) {
     const router = useRouter();
@@ -20,7 +20,7 @@ export default function LogoutDialog({ open, onClose }: { open: boolean; onClose
     if (!open) return null;
 
     return (
-        <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50">
+        <div className="fixed inset-0 z-50 bg-black/60 flex items-center justify-center">
             <div className="bg-gray-900 text-white p-6 rounded-xl shadow-xl w-80">
                 <h2 className="text-lg font-bold mb-4">로그아웃 하시겠어요?</h2>
                 <div className="flex justify-end gap-3">

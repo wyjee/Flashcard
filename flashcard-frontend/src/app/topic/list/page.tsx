@@ -1,6 +1,6 @@
 'use client';
 
-import TopicListItem from "@/components/topics/TopicListItem";
+import TopicListItem from "@/components/topic/TopicListItem";
 import {useTopics} from "@/hooks/UseTopics";
 
 
@@ -13,7 +13,7 @@ export default function TopicListPage() {
 
     return (
         <div className="p-6">
-            <h1 className="text-xl font-bold mb-4">📒 Topic List</h1>
+            <h1 className="text-xl font-bold mb-4">Topic List</h1>
             <div className="space-y-2">
                 {topics.map((topic) => <TopicListItem key={topic.id} topic={topic}/>)}
             </div>
