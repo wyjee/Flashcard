@@ -1,7 +1,7 @@
 'use client';
 
 import TopicListItem from "@/components/topic/TopicListItem";
-import {useTopics} from "@/hooks/UseTopics";
+import {useTopics} from "@/hooks/useTopics";
 
 
 export default function TopicListPage() {

@@ -3,8 +3,6 @@
 import {useState} from 'react';
 import {useRouter} from 'next/navigation';
 import PageWrapper from '@/components/layout/PageWrapper';
-import {useMutation} from '@tanstack/react-query';
-import api from '@/lib/api';
 
 export default function CreateTopicPage() {
     const router = useRouter();
@@ -13,18 +11,6 @@ export default function CreateTopicPage() {
         title: '',
         description: '',
         is_public: true,
-    });
-
-    const mutation = useMutation({
-        mutationFn: async () => {
-            const res = await api.post('/topics', form, {
-                withCredentials: true,
-            });
-            return res.data;
-        },
-        onSuccess: (data) => {
-            router.push(`/qna/create?topicId=${data.id}`);
-        },
     });
 
     const handleChange = (
@@ -44,7 +30,14 @@ export default function CreateTopicPage() {
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
-        mutation.mutate();
+
+        if (!form.title.trim()) {
+            alert('Title is required.');
+            return;
+        }
+
+        localStorage.setItem('temp-topic', JSON.stringify(form));
+        router.push('/qna/create');
     };
 
     return (
@@ -52,7 +45,7 @@ export default function CreateTopicPage() {
             <form onSubmit={handleSubmit} className="max-w-md mx-auto space-y-4 mt-6">
                 <input
                     name="title"
-                    placeholder="Title"
+                    placeholder="Topic Title"
                     value={form.title}
                     onChange={handleChange}
                     className="w-full border px-4 py-2 rounded"
@@ -60,7 +53,7 @@ export default function CreateTopicPage() {
                 />
                 <textarea
                     name="description"
-                    placeholder="Description"
+                    placeholder="Topic Description"
                     value={form.description}
                     onChange={handleChange}
                     className="w-full border px-4 py-2 rounded"
@@ -72,14 +65,13 @@ export default function CreateTopicPage() {
                         checked={form.is_public}
                         onChange={handleChange}
                     />
-                    <span>Public Topic</span>
+                    <span>Make this topic public</span>
                 </label>
                 <button
                     type="submit"
-                    disabled={mutation.isPending}
                     className="w-full bg-gray-600 text-white py-2 rounded hover:bg-gray-700 transition"
                 >
-                    {mutation.isPending ? 'Creating...' : 'Next'}
+                    Next
                 </button>
             </form>
         </PageWrapper>

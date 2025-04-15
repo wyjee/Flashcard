@@ -11,10 +11,14 @@ export default function TopicDetailPage() {
     const searchParams = useSearchParams();
     const topicId = searchParams.get('id');
     const [currentIndex, setCurrentIndex] = useState(0);
+    const [topicTitle, setTitle] = useState('');
     const {data: topicDetail, isLoading, isError} = useTopicDetail(Number(topicId));
 
     useEffect(() => {
-        if (topicId) setCurrentIndex(0);
+        if (topicId) {
+            setCurrentIndex(0);
+            setTitle(topicDetail?.title || '')
+        }
     }, [topicId]);
 
     if (isLoading) return <p>Loading...</p>;
@@ -33,7 +37,7 @@ export default function TopicDetailPage() {
 
     return (
         <div className="p-6 flex flex-col items-center gap-4">
-            <h1 className="text-xl font-bold mb-2">QNAs for Topic {topicId}</h1>
+            <h1 className="text-xl font-bold mb-2">{topicTitle}</h1>
 
             <div className="relative w-full h-[300px] flex items-center justify-center overflow-hidden">
                 <AnimatePresence mode="wait">
