@@ -1,11 +1,11 @@
 import {useQuery} from "@tanstack/react-query";
 import api from '@/lib/api'
-import {TopicItem} from "@/types/TopicListItem";
+import {Topic} from "@/types/Topic";
 
 export const useTopics = () => {
     return useQuery({
         queryKey: ["topics"],
-        queryFn: async (): Promise<TopicItem[]> => {
+        queryFn: async (): Promise<Topic[]> => {
             const res = await api.get("/topics", {
                 withCredentials: true,
             });
