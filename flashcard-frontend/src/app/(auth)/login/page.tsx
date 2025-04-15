@@ -69,7 +69,7 @@ export default function LoginPage() {
 
                 <p className="mt-4 text-center text-sm text-gray-500 dark:text-gray-400">
                     Don’t have an account?{' '}
-                    <Link href="/signup" className="text-purple-600 dark:text-purple-400 hover:underline">
+                    <Link href="/signup" className="text-gray-600 dark:text-gray-400 hover:underline">
                         Sign up
                     </Link>
                 </p>

@@ -44,7 +44,7 @@ const PageWrapper = ({
                 {showProfileButton && !currentUser && (
                     <Link
                         href="/login"
-                        className="absolute right-6 top-1/2 -translate-y-1/2 text-gray-600 hover:text-purple-600"
+                        className="absolute right-6 top-1/2 -translate-y-1/2 text-gray-600"
                         title="Login"
                     >
                         <User size={24}/>
@@ -57,7 +57,7 @@ const PageWrapper = ({
             {showCreateTopicButton && (
                 <Link
                     href="/topic/create"
-                    className="fixed bottom-6 right-6 bg-gray-600 text-white p-3 rounded-full shadow-lg hover:bg-purple-600 transition"
+                    className="fixed bottom-6 right-6 bg-gray-600 text-white p-3 rounded-full shadow-lg transition"
                     title="Create Topic"
                 >
                     <Plus size={20}/>

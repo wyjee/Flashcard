@@ -12,7 +12,7 @@ export default function ProfileMenu({onLogoutClick}: { onLogoutClick: () => void
             <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                     <button
-                        className="p-2 hover:opacity-80 text-gray-600 hover:text-purple-600"
+                        className="p-2 hover:opacity-80 text-gray-600 hover:text-gray-600"
                         title="마이페이지"
                     >
                         <User size={24}/>

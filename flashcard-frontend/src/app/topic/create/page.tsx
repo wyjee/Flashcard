@@ -77,7 +77,7 @@ export default function CreateTopicPage() {
                 <button
                     type="submit"
                     disabled={mutation.isPending}
-                    className="w-full bg-purple-600 text-white py-2 rounded hover:bg-purple-700 transition"
+                    className="w-full bg-gray-600 text-white py-2 rounded hover:bg-gray-700 transition"
                 >
                     {mutation.isPending ? 'Creating...' : 'Next'}
                 </button>
