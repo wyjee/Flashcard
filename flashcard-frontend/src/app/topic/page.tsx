@@ -19,7 +19,7 @@ export default function TopicDetailPage() {
             setCurrentIndex(0);
             setTitle(topicDetail?.title || '')
         }
-    }, [topicId]);
+    }, [topicId, topicDetail]);
 
     if (isLoading) return <p>Loading...</p>;
     if (isError || !topicDetail?.qnas?.length) return <p>No QNAs available.</p>;

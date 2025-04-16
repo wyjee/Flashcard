@@ -2,8 +2,9 @@
 
 import {useState} from 'react';
 import Link from 'next/link';
+import { AxiosError } from 'axios';
 import {useRouter} from 'next/navigation';
-import { useSignup } from '@/hooks/useSignup'
+import {useSignup} from '@/hooks/useSignup'
 
 export default function SignupPage() {
     const router = useRouter();
@@ -21,9 +22,10 @@ export default function SignupPage() {
         try {
             await signup.mutateAsync(form)
             router.push('/login')
-        } catch (err: any) {
-            const msg = err?.response?.data?.detail || 'Signup failed'
-            setError(msg)
+        } catch (err) {
+            const error = err as AxiosError<{ detail?: string }>;
+            const msg = error.response?.data?.detail || 'Signup failed';
+            setError(msg);
         }
     };
 

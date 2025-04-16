@@ -2,13 +2,14 @@
 
 import {motion} from 'framer-motion';
 import {useState} from 'react';
+import type {Qna} from '@/types/Qna'
 
 export default function QnaCard({
                                     qna,
                                     onSwipeNext,
                                     onSwipePrev,
                                 }: {
-    qna: any;
+    qna: Qna;
     onSwipeNext: () => void;
     onSwipePrev: () => void;
 }) {
