@@ -5,9 +5,12 @@ image:
   tag: latest
   pullPolicy: IfNotPresent
 
+containerPort: 8000
+
 service:
   type: ClusterIP
-  port: 8000
+  port: 80
+  targetPort: 8000
 
 ingress:
   enabled: true

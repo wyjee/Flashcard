@@ -3,6 +3,8 @@ FROM node:22 AS builder
 
 WORKDIR /app
 
+COPY .env.prod .env
+
 COPY package*.json ./
 RUN npm install
 
