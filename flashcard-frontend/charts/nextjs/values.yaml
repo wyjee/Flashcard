@@ -7,6 +7,10 @@ image:
 
 containerPort: 3000
 
+env:
+  ENV: "prod"
+  NEXT_PUBLIC_API_BASE_URL: "https://api.34-22-91-115.nip.io"
+
 service:
   type: ClusterIP
   port: 80

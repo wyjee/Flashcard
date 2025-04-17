@@ -7,6 +7,17 @@ image:
 
 containerPort: 8000
 
+postgres:
+  host: "34.64.194.116"
+  port: "5432"
+  user: "flashuser"
+  password: "flashpass"
+  db: "flashcard_db"
+
+redis:
+  host: "10.46.137.236"
+  port: "6379"
+
 service:
   type: ClusterIP
   port: 80
@@ -24,7 +35,3 @@ ingress:
         - path: /
           pathType: Prefix
   tls: []
-
-redis:
-  host: "10.46.137.236"
-  port: "6379"

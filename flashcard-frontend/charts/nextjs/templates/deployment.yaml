@@ -18,3 +18,8 @@ spec:
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           ports:
             - containerPort: {{ .Values.containerPort }}
+          env:
+            - name: ENV
+              value: "{{ .Values.env.ENV }}"
+            - name: NEXT_PUBLIC_API_BASE_URL
+              value: "{{ .Values.env.NEXT_PUBLIC_API_BASE_URL }}"
