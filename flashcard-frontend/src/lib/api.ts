@@ -18,7 +18,7 @@ api.interceptors.response.use(
         if (error.response?.status === 401) {
             try {
                 // 리프레시 토큰 요청
-                await axios.post('/auth/refresh', {}, {
+                await api.post('/auth/refresh', {}, {
                     withCredentials: true,
                 });
 
