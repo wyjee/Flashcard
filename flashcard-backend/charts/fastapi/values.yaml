@@ -24,3 +24,7 @@ ingress:
         - path: /
           pathType: Prefix
   tls: []
+
+redis:
+  host: "10.46.137.236"
+  port: "6379"
