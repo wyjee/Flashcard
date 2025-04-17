@@ -3,11 +3,15 @@ FROM node:22 AS builder
 
 WORKDIR /app
 
+ARG NEXT_PUBLIC_API_BASE_URL
+ENV NEXT_PUBLIC_API_BASE_URL=$NEXT_PUBLIC_API_BASE_URL
+
 COPY package*.json ./
 RUN npm install
 
 COPY . .
-RUN npm run build
+
+RUN NEXT_PUBLIC_API_BASE_URL=$NEXT_PUBLIC_API_BASE_URL npm run build
 
 # Production 단계
 FROM node:22-alpine

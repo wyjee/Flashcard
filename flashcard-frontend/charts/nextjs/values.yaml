@@ -2,14 +2,16 @@ replicaCount: 1
 
 image:
   repository: gcr.io/flashcard-project-2025/nextjs-app
-  tag: latest
+  tag: v1.0.2
   pullPolicy: IfNotPresent
 
 containerPort: 3000
 
+buildArgs:
+  NEXT_PUBLIC_API_BASE_URL: "https://api.34-22-91-115.nip.io"
+
 env:
   ENV: "prod"
-  NEXT_PUBLIC_API_BASE_URL: "https://api.34-22-91-115.nip.io"
 
 service:
   type: ClusterIP
@@ -21,7 +23,7 @@ ingress:
   className: nginx
   annotations:
     kubernetes.io/ingress.class: nginx
-#    nginx.ingress.kubernetes.io/rewrite-target: /
+  #    nginx.ingress.kubernetes.io/rewrite-target: /
   hosts:
     - host: next.34-22-91-115.nip.io
       paths:
