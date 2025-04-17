@@ -19,17 +19,34 @@ spec:
           ports:
             - containerPort: {{ .Values.containerPort }}
           env:
+            - name: ENV
+              value: {{ .Values.env.ENV | quote }}
+            - name: FRONTEND_ORIGIN
+              value: {{ .Values.env.FRONTEND_ORIGIN | quote }}
+
             - name: POSTGRES_HOST
-              value: "{{ .Values.postgres.host }}"
+              value: {{ .Values.env.POSTGRES_HOST | quote }}
             - name: POSTGRES_PORT
-              value: "{{ .Values.postgres.port }}"
+              value: {{ .Values.env.POSTGRES_PORT | quote }}
             - name: POSTGRES_USER
-              value: "{{ .Values.postgres.user }}"
+              value: {{ .Values.env.POSTGRES_USER | quote }}
             - name: POSTGRES_PASSWORD
-              value: "{{ .Values.postgres.password }}"
+              value: {{ .Values.env.POSTGRES_PASSWORD | quote }}
             - name: POSTGRES_DB
-              value: "{{ .Values.postgres.db }}"
+              value: {{ .Values.env.POSTGRES_DB | quote }}
+            - name: DATABASE_URL
+              value: {{ .Values.env.DATABASE_URL | quote }}
+
             - name: REDIS_HOST
-              value: "{{ .Values.redis.host }}"
+              value: {{ .Values.env.REDIS_HOST | quote }}
             - name: REDIS_PORT
-              value: "{{ .Values.redis.port }}"
+              value: {{ .Values.env.REDIS_PORT | quote }}
+
+            - name: SECRET_KEY
+              value: {{ .Values.env.SECRET_KEY | quote }}
+            - name: ACCESS_TOKEN_ALGORITHM
+              value: {{ .Values.env.ACCESS_TOKEN_ALGORITHM | quote }}
+            - name: REFRESH_TOKEN_ALGORITHM
+              value: {{ .Values.env.REFRESH_TOKEN_ALGORITHM | quote }}
+            - name: ACCESS_TOKEN_EXPIRE_MINUTES
+              value: {{ .Values.env.ACCESS_TOKEN_EXPIRE_MINUTES | quote }}

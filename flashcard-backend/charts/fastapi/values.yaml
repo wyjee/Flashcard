@@ -18,6 +18,25 @@ redis:
   host: "10.46.137.236"
   port: "6379"
 
+env:
+  ENV: "prod"
+  FRONTEND_ORIGIN: "next.34-22-91-115.nip.io"
+
+  POSTGRES_HOST: "34.64.194.116"
+  POSTGRES_PORT: "5432"
+  POSTGRES_USER: "flashuser"
+  POSTGRES_PASSWORD: "flashpass"
+  POSTGRES_DB: "flashcard_db"
+  DATABASE_URL: "postgresql://flashuser:flashpass@34.64.194.116:5432/flashcard_db"
+
+  REDIS_HOST: "10.46.137.236"
+  REDIS_PORT: "6379"
+
+  SECRET_KEY: "prod_"
+  ACCESS_TOKEN_ALGORITHM: "HS256"
+  REFRESH_TOKEN_ALGORITHM: "HS256"
+  ACCESS_TOKEN_EXPIRE_MINUTES: "15"
+
 service:
   type: ClusterIP
   port: 80
