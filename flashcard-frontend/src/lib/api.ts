@@ -1,5 +1,5 @@
-import axios, {AxiosError} from 'axios'
-import Cookies from 'js-cookie'
+import axios, { AxiosError } from 'axios';
+import Cookies from 'js-cookie';
 
 const api = axios.create({
     baseURL: process.env.NEXT_PUBLIC_API_BASE_URL || '',
@@ -7,7 +7,7 @@ const api = axios.create({
     headers: {
         'Content-Type': 'application/json',
     },
-})
+});
 
 // 🔄 refresh token 재요청 인터셉터
 api.interceptors.response.use(
@@ -17,12 +17,18 @@ api.interceptors.response.use(
         const originalRequest = error.config;
 
         const isRefreshCall = originalRequest?.url?.includes('/auth/refresh');
+        const hasAccessToken = !!Cookies.get('access_token');
+
+        console.warn('[Interceptor Error]', {
+            originalRequest: originalRequest?.url,
+            isRefreshCall,
+            hasAccessToken,
+        });
+
         if (isRefreshCall) return Promise.reject(error);
 
-        const hasAccessToken = !!Cookies.get('access_token');
         if (error.response?.status === 401 && hasAccessToken) {
             try {
-                // 리프레시 토큰 요청
                 await api.post('/auth/refresh', {}, {
                     withCredentials: true,
                 });
@@ -31,12 +37,13 @@ api.interceptors.response.use(
                 return api(error.config!);
             } catch (refreshErr: unknown) {
                 const refreshError = refreshErr as AxiosError;
+                console.error('[Refresh failed]', refreshError.message);
 
                 // 리프레시도 실패한 경우
                 document.cookie = 'access_token=; Max-Age=0';
                 document.cookie = 'refresh_token=; Max-Age=0';
 
-                console.error('Refresh token failed:', refreshError.message);
+                // 로그인 페이지로
                 window.location.href = '/login';
             }
         }
@@ -45,4 +52,4 @@ api.interceptors.response.use(
     }
 );
 
-export default api
+export default api;
