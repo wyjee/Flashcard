@@ -1,4 +1,5 @@
 import axios, {AxiosError} from 'axios'
+import Cookies from 'js-cookie'
 
 const api = axios.create({
     baseURL: process.env.NEXT_PUBLIC_API_BASE_URL || '',
@@ -9,13 +10,17 @@ const api = axios.create({
 })
 
 // 🔄 refresh token 재요청 인터셉터
-
 api.interceptors.response.use(
     (res) => res,
     async (err: unknown) => {
         const error = err as AxiosError;
+        const originalRequest = error.config;
 
-        if (error.response?.status === 401) {
+        const isRefreshCall = originalRequest?.url?.includes('/auth/refresh');
+        if (isRefreshCall) return Promise.reject(error);
+
+        const hasAccessToken = !!Cookies.get('access_token');
+        if (error.response?.status === 401 && hasAccessToken) {
             try {
                 // 리프레시 토큰 요청
                 await api.post('/auth/refresh', {}, {
