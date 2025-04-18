@@ -17,7 +17,8 @@ api.interceptors.response.use(
         const originalRequest = error.config;
 
         const isRefreshCall = originalRequest?.url?.includes('/auth/refresh');
-        const hasAccessToken = !!Cookies.get('access_token');
+        const isClient = typeof window !== 'undefined';
+        const hasAccessToken = isClient && !!Cookies.get('access_token');
 
         console.warn('[Interceptor Error]', {
             originalRequest: originalRequest?.url,
@@ -34,17 +35,17 @@ api.interceptors.response.use(
                 });
 
                 // 리프레시 토큰 재발급 성공 후 원래 요청 재시도
-                return api(error.config!);
+                return api(originalRequest!);
             } catch (refreshErr: unknown) {
                 const refreshError = refreshErr as AxiosError;
                 console.error('[Refresh failed]', refreshError.message);
 
                 // 리프레시도 실패한 경우
-                document.cookie = 'access_token=; Max-Age=0';
-                document.cookie = 'refresh_token=; Max-Age=0';
-
-                // 로그인 페이지로
-                window.location.href = '/login';
+                if (isClient) {
+                    document.cookie = 'access_token=; Max-Age=0';
+                    document.cookie = 'refresh_token=; Max-Age=0';
+                    window.location.href = '/login';
+                }
             }
         }
 
