@@ -20,7 +20,7 @@ redis:
 
 env:
   ENV: "prod"
-  FRONTEND_ORIGIN: "next.34-22-91-115.nip.io"
+  FRONTEND_ORIGIN: "http://next.34-22-91-115.nip.io"
 
   POSTGRES_HOST: "34.64.194.116"
   POSTGRES_PORT: "5432"
