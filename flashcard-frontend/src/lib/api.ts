@@ -1,4 +1,4 @@
-import axios, { AxiosError } from 'axios';
+import axios, {AxiosError} from 'axios';
 import Cookies from 'js-cookie';
 
 const api = axios.create({
@@ -17,35 +17,32 @@ api.interceptors.response.use(
         const originalRequest = error.config;
 
         const isRefreshCall = originalRequest?.url?.includes('/auth/refresh');
-        const isClient = typeof window !== 'undefined';
-        const hasAccessToken = isClient && !!Cookies.get('access_token');
+        const accessToken = Cookies.get('access_token');
+        const refreshToken = Cookies.get('refresh_token');
+        const hasAccessToken = typeof accessToken === 'string' && accessToken.length > 0;
 
-        console.warn('[Interceptor Error]', {
-            originalRequest: originalRequest?.url,
-            isRefreshCall,
-            hasAccessToken,
-        });
+        console.log('originalRequestUrl:', originalRequest?.url);
+        console.log('access_token:', accessToken);
+        console.log('refresh_token:', refreshToken);
+        console.log('isRefreshCall:', isRefreshCall);
+        console.log('hasAccessToken:', hasAccessToken);
 
-        if (isRefreshCall) return Promise.reject(error);
+        if (isRefreshCall || !hasAccessToken) return Promise.reject(error);
 
-        if (error.response?.status === 401 && hasAccessToken) {
+        if (error.response?.status === 401) {
             try {
-                await api.post('/auth/refresh', {}, {
-                    withCredentials: true,
-                });
-
-                // 리프레시 토큰 재발급 성공 후 원래 요청 재시도
+                await api.post('/auth/refresh', {}, {withCredentials: true});
                 return api(originalRequest!);
-            } catch (refreshErr: unknown) {
+            } catch (refreshErr) {
                 const refreshError = refreshErr as AxiosError;
                 console.error('[Refresh failed]', refreshError.message);
 
-                // 리프레시도 실패한 경우
-                if (isClient) {
-                    document.cookie = 'access_token=; Max-Age=0';
-                    document.cookie = 'refresh_token=; Max-Age=0';
-                    window.location.href = '/login';
-                }
+                // 쿠키 삭제
+                Cookies.remove('access_token');
+                Cookies.remove('refresh_token');
+
+                // 리디렉션
+                window.location.href = '/login';
             }
         }
 
