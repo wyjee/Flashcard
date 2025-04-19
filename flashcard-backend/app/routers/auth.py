@@ -103,7 +103,7 @@ def refresh_token(request: Request):
             raise HTTPException(status_code=401, detail="Invalid refresh token")
 
         # Redis에 있는지 확인
-        stored_token = redis.get(username)
+        stored_token = redis.get(f"refresh_token:{username}")
         if not stored_token or stored_token.decode() != refresh_token:
             raise HTTPException(status_code=403, detail="Invalid or expired refresh token")
 
