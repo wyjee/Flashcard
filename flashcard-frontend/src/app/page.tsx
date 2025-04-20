@@ -10,10 +10,6 @@ export default function Home() {
     const {data: currentUser} = useCurrentUser();
     const {data: topics, isLoading, isError} = useTopics();
 
-    useEffect(() => {
-        console.log("[테스트] API BASE:", process.env.NEXT_PUBLIC_API_BASE_URL);
-    }, []);
-
     if (isLoading) return <p>Loading...</p>;
     if (isError || !topics) return <p>Something went wrong</p>;
 
