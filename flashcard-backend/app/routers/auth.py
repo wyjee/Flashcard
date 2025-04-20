@@ -213,8 +213,10 @@ def logout(current_user: User = Depends(get_current_user)):
 # 유저 정보
 # --------------------------------------------------
 
-@router.get("/me", response_model=UserOut)
-def read_me(current_user: User = Depends(get_current_user)):
+@router.get("/me", response_model=Optional[UserOut])
+def read_me(current_user: Optional[User] = Depends(get_optional_user)):
+    if not current_user:
+        return None
     return current_user
 
 @router.patch("/me", response_model=UserOut)
