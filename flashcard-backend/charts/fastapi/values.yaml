@@ -20,7 +20,7 @@ redis:
 
 env:
   ENV: "prod"
-  FRONTEND_ORIGIN: "http://next.34-22-91-115.nip.io"
+  FRONTEND_ORIGIN: "https://next.34-22-91-115.nip.io"
 
   POSTGRES_HOST: "34.64.194.116"
   POSTGRES_PORT: "5432"
@@ -47,10 +47,14 @@ ingress:
   className: nginx
   annotations:
     kubernetes.io/ingress.class: nginx
-    nginx.ingress.kubernetes.io/rewrite-target: /
+    cert-manager.io/cluster-issuer: letsencrypt-http
+    acme.cert-manager.io/http01-edit-in-place: "true"
   hosts:
     - host: api.34-22-91-115.nip.io
       paths:
         - path: /
           pathType: Prefix
-  tls: []
+  tls:
+    - hosts:
+        - api.34-22-91-115.nip.io
+      secretName: fastapi-tls-secret

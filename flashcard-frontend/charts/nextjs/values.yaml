@@ -23,10 +23,14 @@ ingress:
   className: nginx
   annotations:
     kubernetes.io/ingress.class: nginx
-  #    nginx.ingress.kubernetes.io/rewrite-target: /
+    cert-manager.io/cluster-issuer: letsencrypt-http
+    acme.cert-manager.io/http01-edit-in-place: "true"
   hosts:
     - host: next.34-22-91-115.nip.io
       paths:
         - path: /
           pathType: Prefix
-  tls: []
+  tls:
+    - hosts:
+        - next.34-22-91-115.nip.io
+      secretName: next-tls-secret

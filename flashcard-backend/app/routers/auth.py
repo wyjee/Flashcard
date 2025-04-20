@@ -180,18 +180,18 @@ def login(
         key="access_token",
         value=access_token,
         httponly=True,
-        secure=False,
+        secure=True,
         # secure=True, #https
-        samesite="Lax",
+        samesite="None",
         max_age=settings.ACCESS_TOKEN_EXPIRE_MINUTES * 60,
     )
     response.set_cookie(
         key="refresh_token",
         value=refresh_token,
         httponly=True,
-        secure=False,
+        secure=True,
         # secure=True, #https
-        samesite="Lax",
+        samesite="None",
         max_age=7 * 24 * 3600,
     )
 
