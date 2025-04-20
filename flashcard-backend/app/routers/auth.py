@@ -204,7 +204,7 @@ def login(
 @router.post("/logout")
 def logout(current_user: User = Depends(get_current_user)):
     redis.delete(f"user:{current_user.username}")
-    redis.delete(current_user.username)
+    redis.delete(f"refresh_token:{current_user.username}")
     response = JSONResponse(content={"msg": "Logged out"})
     response.delete_cookie("access_token")
     return response
