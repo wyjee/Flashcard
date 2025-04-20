@@ -12,8 +12,7 @@ RUN npm install
 COPY . .
 
 ENV NEXT_PUBLIC_API_BASE_URL=${NEXT_PUBLIC_API_BASE_URL}
-RUN echo "#################API: $NEXT_PUBLIC_API_BASE_URL" \
-     && npm run build
+RUN echo "#################API: $NEXT_PUBLIC_API_BASE_URL" && npm run build
 
 FROM node:22-alpine
 
