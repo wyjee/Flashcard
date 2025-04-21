@@ -28,6 +28,7 @@ api.interceptors.response.use(
         console.log('isRefreshCall:', isRefreshCall);
         console.log('hasAccessToken:', hasAccessToken);
 
+        if (!isRefreshCall) return api(originalRequest!);
         if (isRefreshCall || !hasAccessToken) return Promise.reject(error);
 
         if (error.response?.status === 401) {
