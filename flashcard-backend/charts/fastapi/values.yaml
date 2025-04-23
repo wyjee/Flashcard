@@ -2,8 +2,8 @@ replicaCount: 1
 
 image:
   repository: gcr.io/flashcard-project-2025/fastapi-app
-  tag: latest
-  pullPolicy: IfNotPresent
+  tag: v1.0.2
+  pullPolicy: Always
 
 containerPort: 8000
 
