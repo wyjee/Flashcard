@@ -1,11 +1,11 @@
 import os
 
-# from dotenv import load_dotenv
 from pydantic_settings import BaseSettings
 
 env_name = os.getenv("ENV", "local")
 env_file = f".env.{env_name}"
-# load_dotenv(dotenv_path=env_file)
+from dotenv import load_dotenv
+load_dotenv(dotenv_path=".env.local")
 
 class Settings(BaseSettings):
     ENV: str = os.getenv("ENV", "local")
