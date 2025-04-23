@@ -20,26 +20,27 @@ api.interceptors.response.use(
         const isRefreshCall = originalRequest?.url?.includes('/auth/refresh');
         const accessToken = Cookies.get('access_token');
         const refreshToken = Cookies.get('refresh_token');
-        const hasAccessToken = typeof accessToken === 'string' && accessToken.length > 0;
 
         console.log('originalRequestUrl:', originalRequest?.url);
         console.log('access_token:', accessToken);
         console.log('refresh_token:', refreshToken);
         console.log('isRefreshCall:', isRefreshCall);
-        console.log('hasAccessToken:', hasAccessToken);
 
-        if (!isRefreshCall) return api(originalRequest!);
-        if (isRefreshCall || !hasAccessToken) return Promise.reject(error);
+        if (isRefreshCall) {
+            Cookies.remove('access_token');
+            Cookies.remove('refresh_token');
+            window.location.href = '/login';
+            return Promise.reject(error);
+        }
 
-        if (error.response?.status === 401) {
+        if (error.response?.status === 401 && refreshToken) {
             try {
                 await api.post('/auth/refresh', {}, {withCredentials: true});
-                return api(originalRequest!);
+                return api(originalRequest!); // 원래 요청 재시도
             } catch (refreshErr) {
                 const refreshError = refreshErr as AxiosError;
                 console.error('[Refresh failed]', refreshError.message);
 
-                // 쿠키 삭제
                 Cookies.remove('access_token');
                 Cookies.remove('refresh_token');
 
