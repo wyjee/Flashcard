@@ -6,7 +6,7 @@ from app.routers import auth, topics, qnas
 from fastapi.middleware.cors import CORSMiddleware
 
 app = FastAPI()
-# app.router.redirect_slashes = False
+app.router.redirect_slashes = False
 
 # CORS 설정
 app.add_middleware(
