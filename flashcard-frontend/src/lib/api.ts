@@ -1,5 +1,6 @@
 import axios, {AxiosError} from 'axios';
 import Cookies from 'js-cookie';
+// import {withTrailingSlash} from '@/lib/utils';
 
 console.log("[테스트] API.ts:", process.env.NEXT_PUBLIC_API_BASE_URL);
 
@@ -11,19 +12,13 @@ const api = axios.create({
     },
 });
 
-// 요청 인터셉터: URL 끝에 슬래시 붙이기
-api.interceptors.request.use((config) => {
-    console.log(config.method)
-    if (
-        config.method === 'get' &&
-        config.url &&
-        !config.url.startsWith('/auth') &&
-        !config.url.endsWith('/')
-    ) {
-        config.url += '/';
-    }
-    return config;
-});
+// 요청 인터셉터: URL 끝에 슬래시 붙이기 -> app.router.redirect_slashes = False
+// api.interceptors.request.use((config) => {
+//     if (config.url && !config.url.startsWith('/auth')) {
+//         config.url = withTrailingSlash(config.url);
+//     }
+//     return config;
+// });
 
 // 응답 인터셉터: 리프레시 토큰 처리
 api.interceptors.response.use(

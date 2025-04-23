@@ -9,7 +9,7 @@ from app.models.user import User
 
 router = APIRouter()
 
-@router.post("/", response_model=QNAOut, status_code=201)
+@router.post("", response_model=QNAOut, status_code=201)
 def create_qna(
         qna: QNACreate,
         db: Session = Depends(get_db),

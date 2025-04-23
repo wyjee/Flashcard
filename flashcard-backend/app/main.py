@@ -6,9 +6,8 @@ from app.routers import auth, topics, qnas
 from fastapi.middleware.cors import CORSMiddleware
 
 app = FastAPI()
-app.router.redirect_slashes = True
+app.router.redirect_slashes = False
 
-# CORS 설정
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[settings.FRONTEND_ORIGIN],
@@ -16,6 +15,13 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+
+@app.middleware("http")
+async def log_requests(request: Request, call_next):
+    print(">>> 요청 경로:", request.url)
+    response = await call_next(request)
+    return response
 
 Base.metadata.create_all(bind=engine)
 
@@ -26,9 +32,3 @@ app.include_router(qnas.router, prefix="/qnas", tags=["QNA"])
 @app.get("/")
 def root():
     return {"msg": "Flashcard API is running"}
-
-@app.middleware("http")
-async def log_requests(request: Request, call_next):
-    print(">>> 요청 경로:", request.url)
-    response = await call_next(request)
-    return response

@@ -14,7 +14,7 @@ from app.schemas.qna import MultiQNACreate
 
 router = APIRouter()
 
-@router.post("/", response_model=TopicOut, status_code=201)
+@router.post("", response_model=TopicOut, status_code=201)
 def create_topic(
         topic: TopicCreate,
         db: Session = Depends(get_db),
@@ -59,7 +59,7 @@ def create_multiple_qnas(
     db.commit()
     return {"created": len(new_qnas)}
 
-@router.get("/", response_model=List[TopicOut])
+@router.get("", response_model=List[TopicOut])
 def get_topics(
         db: Session = Depends(get_db),
         current_user: Optional[User] = Depends(get_optional_user)
