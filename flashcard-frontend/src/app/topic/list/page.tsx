@@ -14,7 +14,7 @@ export default function TopicListPage() {
     return (
         <div className="p-6">
             <h1 className="text-xl font-bold mb-4">Topic List</h1>
-            <div className="space-y-2">
+            <div className="flex flex-col space-y-2">
                 {topics.map((topic) => <TopicListItem key={topic.id} topic={topic}/>)}
             </div>
         </div>

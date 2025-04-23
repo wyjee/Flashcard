@@ -26,3 +26,9 @@ app.include_router(qnas.router, prefix="/qnas", tags=["QNA"])
 @app.get("/")
 def root():
     return {"msg": "Flashcard API is running"}
+
+@app.middleware("http")
+async def log_requests(request: Request, call_next):
+    print(">>> 요청 경로:", request.url)
+    response = await call_next(request)
+    return response
