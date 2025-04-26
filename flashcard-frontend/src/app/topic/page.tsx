@@ -1,13 +1,16 @@
 'use client';
 
 import {useEffect, useState} from 'react';
-import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import {useSearchParams} from 'next/navigation';
 import QnaCard from '@/components/QnaCard';
 import {AnimatePresence} from 'framer-motion';
 import {useTopicDetail} from '@/hooks/useTopicDetail';
+import {DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger} from '@/components/ui/DropdownMenu';
+import {MoreVertical} from 'lucide-react';
 
 export default function TopicDetailPage() {
+    const router = useRouter();
     const searchParams = useSearchParams();
     const topicId = searchParams.get('id');
     const [currentIndex, setCurrentIndex] = useState(0);
@@ -73,12 +76,35 @@ export default function TopicDetailPage() {
                 {currentIndex + 1} / {qnas.length}
             </p>
 
-            <Link
-                href="/topic/list"
-                className="fixed bottom-4 right-4 bg-gray-800 text-white text-sm px-4 py-2 rounded shadow hover:bg-gray-700 transition"
-            >
-                ← Back To List
-            </Link>
+            <DropdownMenu>
+                <DropdownMenuTrigger
+                    className="fixed bottom-4 right-4 bg-gray-800 text-white px-3 py-2 rounded shadow hover:bg-gray-700 transition">
+                    <MoreVertical/>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent>
+                    <DropdownMenuItem
+                        onClick={() => {
+                            if (topicId) {
+                                localStorage.setItem('editing_topic_id', topicId);
+                                router.push(`/topic/${topicId}/edit`);
+                            }
+                        }}
+                    >
+                        Edit
+                    </DropdownMenuItem>
+                    <DropdownMenuItem
+                        onClick={() => {
+                            if (confirm('Do you really want to remove it?') && topicId) {
+                                api.delete(`/topics/${topicId}`).then(() => {
+                                    router.push('/topic/list');
+                                });
+                            }
+                        }}
+                    >
+                        Delete
+                    </DropdownMenuItem>
+                </DropdownMenuContent>
+            </DropdownMenu>
         </div>
     );
 }
