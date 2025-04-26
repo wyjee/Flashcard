@@ -2,8 +2,6 @@ import axios, {AxiosError} from 'axios';
 import Cookies from 'js-cookie';
 // import {withTrailingSlash} from '@/lib/utils';
 
-console.log("[테스트] API.ts:", process.env.NEXT_PUBLIC_API_BASE_URL);
-
 const api = axios.create({
     baseURL: process.env.NEXT_PUBLIC_API_BASE_URL || '',
     withCredentials: true,
@@ -30,11 +28,6 @@ api.interceptors.response.use(
         const isRefreshCall = originalRequest?.url?.includes('/auth/refresh');
         const accessToken = Cookies.get('access_token');
         const refreshToken = Cookies.get('refresh_token');
-
-        console.log('originalRequestUrl:', originalRequest?.url);
-        console.log('access_token:', accessToken);
-        console.log('refresh_token:', refreshToken);
-        console.log('isRefreshCall:', isRefreshCall);
 
         if (isRefreshCall) {
             Cookies.remove('access_token');
