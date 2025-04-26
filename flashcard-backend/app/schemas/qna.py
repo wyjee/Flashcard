@@ -10,6 +10,9 @@ class QNABase(BaseModel):
 class QNACreate(QNABase):
     topic_id: int
 
+class QNAUpdate(QNABase):
+    pass
+
 class QNAOut(QNABase):
     id: int
     question: str
