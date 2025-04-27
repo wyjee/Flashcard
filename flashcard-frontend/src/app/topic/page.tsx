@@ -1,28 +1,32 @@
 'use client';
 
-import {useEffect, useState} from 'react';
-import { useRouter } from 'next/navigation';
-import {useSearchParams} from 'next/navigation';
-import QnaCard from '@/components/QnaCard';
-import {AnimatePresence} from 'framer-motion';
-import {useTopicDetail} from '@/hooks/useTopicDetail';
-import {DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger} from '@/components/ui/DropdownMenu';
-import {MoreVertical} from 'lucide-react';
+import { useEffect, useState } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
+import { AnimatePresence } from 'framer-motion';
+import { useTopicDetail } from '@/hooks/useTopicDetail';
+import { useUpdateQna, useDeleteQna } from '@/hooks/useQna';
+import { useDeleteTopic } from '@/hooks/useTopics';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/DropdownMenu';
+import { MoreVertical } from 'lucide-react';
+import QnaItem from '@/components/qna/QnaItem';
 
 export default function TopicDetailPage() {
     const router = useRouter();
     const searchParams = useSearchParams();
     const topicId = searchParams.get('id');
     const [currentIndex, setCurrentIndex] = useState(0);
-    const [topicTitle, setTitle] = useState('');
-    const {data: topicDetail, isLoading, isError} = useTopicDetail(Number(topicId));
+    const [topicTitle, setTopicTitle] = useState('');
+    const { data: topicDetail, isLoading, isError } = useTopicDetail(Number(topicId));
+    const updateQna = useUpdateQna();
+    const deleteQna = useDeleteQna();
+    const deleteTopic = useDeleteTopic(); // 추가
 
     useEffect(() => {
-        if (topicId) {
+        if (topicDetail) {
             setCurrentIndex(0);
-            setTitle(topicDetail?.title || '')
+            setTopicTitle(topicDetail.title || '');
         }
-    }, [topicId, topicDetail]);
+    }, [topicDetail]);
 
     if (isLoading) return <p>Loading...</p>;
     if (isError || !topicDetail?.qnas?.length) return <p>No QNAs available.</p>;
@@ -38,6 +42,34 @@ export default function TopicDetailPage() {
         setCurrentIndex((prev) => (prev - 1 >= 0 ? prev - 1 : 0));
     };
 
+    const handleUpdateQna = async (qnaId: number) => {
+        await updateQna.mutateAsync({
+            qnaId,
+            question: '수정된 질문',
+            answer: '수정된 답변',
+        });
+    };
+
+    const handleDeleteQna = async (qnaId: number) => {
+        if (confirm('정말 삭제할까요?')) {
+            await deleteQna.mutateAsync(qnaId);
+        }
+    };
+
+    const handleEditTopic = () => {
+        if (topicId) {
+            localStorage.setItem('editing_topic_id', topicId);
+            router.push(`/topic/${topicId}/edit`);
+        }
+    };
+
+    const handleDeleteTopic = async () => {
+        if (topicId && confirm('정말 삭제할까요?')) {
+            await deleteTopic.mutateAsync(Number(topicId));
+            router.push('/topic/list');
+        }
+    };
+
     return (
         <div className="p-6 flex flex-col items-center gap-4">
             <h1 className="text-xl font-bold mb-2">{topicTitle}</h1>
@@ -45,11 +77,12 @@ export default function TopicDetailPage() {
             <div className="relative w-full h-[300px] flex items-center justify-center overflow-hidden">
                 <AnimatePresence mode="wait">
                     {currentQna && (
-                        <QnaCard
-                            key={currentQna.id}
+                        <QnaItem
                             qna={currentQna}
                             onSwipeNext={handleNext}
                             onSwipePrev={handlePrev}
+                            onUpdate={() => handleUpdateQna(currentQna.id)}
+                            onDelete={() => handleDeleteQna(currentQna.id)}
                         />
                     )}
                 </AnimatePresence>
@@ -77,32 +110,12 @@ export default function TopicDetailPage() {
             </p>
 
             <DropdownMenu>
-                <DropdownMenuTrigger
-                    className="fixed bottom-4 right-4 bg-gray-800 text-white px-3 py-2 rounded shadow hover:bg-gray-700 transition">
-                    <MoreVertical/>
+                <DropdownMenuTrigger className="fixed bottom-4 right-4 bg-gray-800 text-white px-3 py-2 rounded shadow hover:bg-gray-700 transition">
+                    <MoreVertical />
                 </DropdownMenuTrigger>
                 <DropdownMenuContent>
-                    <DropdownMenuItem
-                        onClick={() => {
-                            if (topicId) {
-                                localStorage.setItem('editing_topic_id', topicId);
-                                router.push(`/topic/${topicId}/edit`);
-                            }
-                        }}
-                    >
-                        Edit
-                    </DropdownMenuItem>
-                    <DropdownMenuItem
-                        onClick={() => {
-                            if (confirm('Do you really want to remove it?') && topicId) {
-                                api.delete(`/topics/${topicId}`).then(() => {
-                                    router.push('/topic/list');
-                                });
-                            }
-                        }}
-                    >
-                        Delete
-                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={handleEditTopic}>Edit Topic</DropdownMenuItem>
+                    <DropdownMenuItem onClick={handleDeleteTopic}>Delete Topic</DropdownMenuItem>
                 </DropdownMenuContent>
             </DropdownMenu>
         </div>

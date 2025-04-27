@@ -1,4 +1,4 @@
-import {useQuery} from "@tanstack/react-query";
+import {useQuery, useMutation} from "@tanstack/react-query";
 import api from '@/lib/api'
 import {Topic} from "@/types/Topic";
 
@@ -11,5 +11,11 @@ export const useTopics = () => {
             });
             return res.data;
         },
+    });
+};
+
+export const useDeleteTopic = () => {
+    return useMutation({
+        mutationFn: (topicId: number) => api.delete(`/topics/${topicId}`),
     });
 };
