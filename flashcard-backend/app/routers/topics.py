@@ -81,3 +81,20 @@ def get_topic_with_qnas(topic_id: int, db: Session = Depends(get_db)):
         raise HTTPException(status_code=404, detail="Topic not found")
 
     return topic
+
+@router.delete("/{topic_id}", status_code=204)
+def delete_topic(
+        topic_id: int,
+        db: Session = Depends(get_db),
+        current_user: User = Depends(get_current_user)
+):
+    topic = db.query(Topic).filter(Topic.id == topic_id).first()
+
+    if not topic:
+        raise HTTPException(status_code=404, detail="Topic not found")
+    if topic.user_id != current_user.id:
+        raise HTTPException(status_code=403, detail="Not your topic")
+
+    db.delete(topic)
+    db.commit()
+    return

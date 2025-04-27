@@ -17,4 +17,4 @@ class Topic(Base):
     user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
     user = relationship("User", back_populates="topics")
 
-    qnas = relationship("QNA", back_populates="topic", cascade="all, delete")
+    qnas = relationship("QNA", back_populates="topic", cascade="all, delete-orphan")
