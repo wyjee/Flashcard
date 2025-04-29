@@ -22,7 +22,7 @@ export default function LogoutDialog({ open, onClose }: { open: boolean; onClose
     return (
         <div className="fixed inset-0 z-50 bg-black/60 flex items-center justify-center">
             <div className="bg-gray-900 text-white p-6 rounded-xl shadow-xl w-80">
-                <h2 className="text-lg font-bold mb-4">로그아웃 하시겠어요?</h2>
+                <h2 className="text-lg font-bold mb-4">Are you sure you want to log out?</h2>
                 <div className="flex justify-end gap-3">
                     <button
                         onClick={onClose}
@@ -35,7 +35,7 @@ export default function LogoutDialog({ open, onClose }: { open: boolean; onClose
                         disabled={loading}
                         className="px-4 py-2 rounded bg-red-500 hover:bg-red-600"
                     >
-                        {loading ? '처리 중...' : '로그아웃'}
+                        {loading ? 'Loading...' : 'Logout'}
                     </button>
                 </div>
             </div>

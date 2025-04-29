@@ -9,7 +9,7 @@ export default function LogoutButton() {
     return (
         <>
             <button onClick={() => setOpen(true)} className="text-white bg-gray-700 px-3 py-1 rounded">
-                로그아웃
+                Logout
             </button>
             <LogoutDialog open={open} onClose={() => setOpen(false)} />
         </>
