@@ -10,13 +10,19 @@ const api = axios.create({
     },
 });
 
-// 요청 인터셉터: URL 끝에 슬래시 붙이기 -> app.router.redirect_slashes = False
-// api.interceptors.request.use((config) => {
-//     if (config.url && !config.url.startsWith('/auth')) {
-//         config.url = withTrailingSlash(config.url);
-//     }
-//     return config;
-// });
+// 요청 인터셉터: 로그인이 필요한 특정 엔드포인트 접근시 토큰 첨부
+api.interceptors.request.use(
+    (config) => {
+        const accessToken = Cookies.get('access_token');
+        if (accessToken && config.headers) {
+            config.headers.Authorization = `Bearer ${accessToken}`;
+        }
+        return config;
+    },
+    (error) => {
+        return Promise.reject(error);
+    }
+);
 
 // 응답 인터셉터: 리프레시 토큰 처리
 api.interceptors.response.use(
