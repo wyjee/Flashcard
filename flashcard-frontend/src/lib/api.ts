@@ -1,6 +1,5 @@
 import axios, {AxiosError} from 'axios';
 import Cookies from 'js-cookie';
-// import {withTrailingSlash} from '@/lib/utils';
 
 const api = axios.create({
     baseURL: process.env.NEXT_PUBLIC_API_BASE_URL || '',
@@ -32,7 +31,6 @@ api.interceptors.response.use(
         const originalRequest = error.config;
 
         const isRefreshCall = originalRequest?.url?.includes('/auth/refresh');
-        const accessToken = Cookies.get('access_token');
         const refreshToken = Cookies.get('refresh_token');
 
         if (isRefreshCall) {
