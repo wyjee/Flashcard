@@ -9,13 +9,20 @@ interface QNAUpdateForm {
     answer: string;
 }
 
+export const useCreateQna = () => {
+    return useMutation({
+        mutationFn: ({topicId, question, answer}: { topicId: number, question: string, answer: string }) =>
+            api.post(`/topics/${topicId}/qnas`, {qnas: [{question, answer}]}).then(res => res.data.createdQna),
+    });
+};
+
 export const useUpdateQna = () => {
     const queryClient = useQueryClient();
 
     return useMutation({
         mutationFn: async (form: QNAUpdateForm) => {
             const {qnaId, ...updateData} = form;
-            const res = await api.put(`/qna/${qnaId}`, updateData);
+            const res = await api.put(`/qnas/${qnaId}`, updateData);
             return res.data;
         },
         onSuccess: () => {
@@ -29,7 +36,7 @@ export const useDeleteQna = () => {
 
     return useMutation({
         mutationFn: async (qnaId: number) => {
-            await api.delete(`/qna/${qnaId}`);
+            await api.delete(`/qnas/${qnaId}`);
         },
         onSuccess: () => {
             queryClient.invalidateQueries({queryKey: ['topicDetail']});

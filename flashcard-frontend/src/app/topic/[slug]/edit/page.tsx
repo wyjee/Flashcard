@@ -1,49 +1,28 @@
 'use client';
 
-import {useState} from 'react';
-import {useRouter, useSearchParams} from 'next/navigation';
+import {useEffect, useState} from 'react';
+import {useParams, useRouter} from 'next/navigation';
 import PageWrapper from '@/components/layout/PageWrapper';
-import {useMutation, useQuery} from '@tanstack/react-query';
-import api from '@/lib/api';
+import {useTopicDetail} from '@/hooks/useTopicDetail';
+import {useCreateQna, useDeleteQna, useUpdateQna} from '@/hooks/useQna';
 import type {Qna} from '@/types/Qna';
 
 export default function EditQnaPage() {
     const router = useRouter();
-    const searchParams = useSearchParams();
-    const topicId = searchParams.get('id');
+    const params = useParams();
+    const topicId = params?.slug;
+    const {data: topicDetail, isLoading, isError} = useTopicDetail(Number(topicId));
+    const updateQna = useUpdateQna();
+    const deleteQna = useDeleteQna();
+    const createQna = useCreateQna();
 
     const [qnas, setQnas] = useState<Qna[]>([]);
-    const [topicForm, setTopicForm] = useState<{
-        title: string;
-        description: string;
-        is_public: boolean;
-    } | null>(null);
 
-    const {isLoading} = useQuery({
-        queryKey: ['topicDetail', topicId],
-        queryFn: async () => {
-            const res = await api.get(`/topics/${topicId}`);
-            setTopicForm({
-                title: res.data.title,
-                description: res.data.description,
-                is_public: res.data.is_public,
-            });
-            setQnas(res.data.qnas || []);
-        },
-        enabled: !!topicId,
-    });
-
-    const mutation = useMutation({
-        mutationFn: async () => {
-            if (!topicForm || !topicId) throw new Error('Missing topic data');
-            if (qnas.length === 0) throw new Error('Please add at least one QnA');
-
-            await api.post(`/topics/${topicId}/qnas`, {qnas});
-        },
-        onSuccess: () => {
-            router.push('/topic/list');
-        },
-    });
+    useEffect(() => {
+        if (topicDetail?.qnas) {
+            setQnas(topicDetail.qnas);
+        }
+    }, [topicDetail]);
 
     const handleChange = <K extends keyof Qna>(
         index: number,
@@ -51,57 +30,108 @@ export default function EditQnaPage() {
         value: Qna[K]
     ) => {
         const newQnas = [...qnas];
-        newQnas[index][name] = value;
+        newQnas[index] = {
+            ...newQnas[index],
+            [name]: value,
+        };
         setQnas(newQnas);
     };
 
-    const addQna = () => {
-        setQnas([...qnas, {question: '', answer: ''}]);
+    const handleUpdate = async (index: number) => {
+        const qna = qnas[index];
+        if (!qna.id) return;
+
+        await updateQna.mutateAsync({
+            qnaId: qna.id,
+            question: qna.question,
+            answer: qna.answer,
+        });
+        alert('Updated Succesfully!');
     };
 
-    const handleSubmit = (e: React.FormEvent) => {
-        e.preventDefault();
-        mutation.mutate();
+    const handleDelete = async (index: number) => {
+        const qna = qnas[index];
+        if (!qna.id) return;
+
+        if (confirm('Are you sure you want to delete this QnA?')) {
+            await deleteQna.mutateAsync(qna.id);
+            setQnas((prev) => prev.filter((_, i) => i !== index));
+        }
+    };
+
+    const handleAddQna = async () => {
+        if (!topicId) return;
+        const newQna = {question: '', answer: ''};
+        const created = await createQna.mutateAsync({
+            topicId: Number(topicId),
+            ...newQna,
+        });
+        setQnas((prev) => [...prev, created]);
     };
 
     if (isLoading) return <div className="text-center mt-10">Loading...</div>;
+    if (isError) return <div className="text-center mt-10 text-red-500">Failed to load</div>;
 
     return (
         <PageWrapper title="Edit QnAs">
-            <form onSubmit={handleSubmit} className="max-w-md mx-auto space-y-4 mt-6">
+            <div className="max-w-md mx-auto space-y-6 mt-6">
                 {qnas.map((qna, idx) => (
-                    <div key={idx} className="py-4 rounded">
+                    <div key={qna.id || idx} className="p-4 shadow rounded space-y-2 border">
                         <input
                             placeholder="Question"
                             value={qna.question}
                             onChange={(e) => handleChange(idx, 'question', e.target.value)}
-                            className="w-full mb-2 border px-4 py-2 rounded"
+                            className="w-full px-4 py-2 rounded
+                                bg-surface-light dark:bg-gray-800
+                                border border-gray-300 dark:border-gray-700
+                                text-text-light dark:text-white
+                                placeholder-gray-400 dark:placeholder-gray-500"
                             required
                         />
                         <textarea
                             placeholder="Answer"
                             value={qna.answer}
                             onChange={(e) => handleChange(idx, 'answer', e.target.value)}
-                            className="w-full border px-4 py-2 rounded"
+                            className="w-full px-4 py-2 rounded
+                                bg-surface-light dark:bg-gray-800
+                                border border-gray-300 dark:border-gray-700
+                                text-text-light dark:text-white
+                                placeholder-gray-400 dark:placeholder-gray-500"
                             required
                         />
+                        <div className="flex justify-between gap-2">
+                            <button
+                                onClick={() => handleUpdate(idx)}
+                                className="flex-1 bg-blue-500 text-white py-2 rounded hover:bg-blue-600"
+                            >
+                                Update
+                            </button>
+                            <button
+                                onClick={() => handleDelete(idx)}
+                                className="flex-1 bg-red-500 text-white py-2 rounded hover:bg-red-600"
+                            >
+                                Delete
+                            </button>
+                        </div>
                     </div>
                 ))}
+
                 <button
                     type="button"
-                    onClick={addQna}
-                    className="w-full bg-blue-100 text-gray-800 py-2 rounded hover:bg-gray-200 transition"
+                    onClick={handleAddQna}
+                    className="w-full bg-gray-100 border text-gray-800 py-2 rounded hover:bg-gray-200"
                 >
                     + Add QnA
                 </button>
+
                 <button
-                    type="submit"
-                    disabled={mutation.isPending}
-                    className="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700 transition"
+                    type="button"
+                    onClick={() => router.back()}
+                    className="w-full bg-gray-600 text-white py-2 rounded hover:bg-gray-700 mt-4"
                 >
-                    {mutation.isPending ? 'Saving...' : 'Save Changes'}
+                    Back
                 </button>
-            </form>
+            </div>
         </PageWrapper>
     );
 }

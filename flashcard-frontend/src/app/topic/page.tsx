@@ -1,13 +1,12 @@
 'use client';
 
-import { useEffect, useState } from 'react';
-import { useRouter, useSearchParams } from 'next/navigation';
-import { AnimatePresence } from 'framer-motion';
-import { useTopicDetail } from '@/hooks/useTopicDetail';
-import { useUpdateQna, useDeleteQna } from '@/hooks/useQna';
-import { useDeleteTopic } from '@/hooks/useTopics';
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/DropdownMenu';
-import { MoreVertical } from 'lucide-react';
+import {useEffect, useState} from 'react';
+import {useRouter, useSearchParams} from 'next/navigation';
+import {AnimatePresence} from 'framer-motion';
+import {useTopicDetail} from '@/hooks/useTopicDetail';
+import {useDeleteTopic} from '@/hooks/useTopics';
+import {DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger} from '@/components/ui/DropdownMenu';
+import {MoreVertical} from 'lucide-react';
 import QnaItem from '@/components/qna/QnaItem';
 
 export default function TopicDetailPage() {
@@ -17,9 +16,7 @@ export default function TopicDetailPage() {
     const [currentIndex, setCurrentIndex] = useState(0);
     const [topicTitle, setTopicTitle] = useState('');
     const { data: topicDetail, isLoading, isError } = useTopicDetail(Number(topicId));
-    const updateQna = useUpdateQna();
-    const deleteQna = useDeleteQna();
-    const deleteTopic = useDeleteTopic(); // 추가
+    const deleteTopic = useDeleteTopic();
 
     useEffect(() => {
         if (topicDetail) {
@@ -40,20 +37,6 @@ export default function TopicDetailPage() {
 
     const handlePrev = () => {
         setCurrentIndex((prev) => (prev - 1 >= 0 ? prev - 1 : 0));
-    };
-
-    const handleUpdateQna = async (qnaId: number) => {
-        await updateQna.mutateAsync({
-            qnaId,
-            question: '수정된 질문',
-            answer: '수정된 답변',
-        });
-    };
-
-    const handleDeleteQna = async (qnaId: number) => {
-        if (confirm('정말 삭제할까요?')) {
-            await deleteQna.mutateAsync(qnaId);
-        }
     };
 
     const handleEditTopic = () => {
@@ -81,8 +64,6 @@ export default function TopicDetailPage() {
                             qna={currentQna}
                             onSwipeNext={handleNext}
                             onSwipePrev={handlePrev}
-                            onUpdate={() => handleUpdateQna(currentQna.id)}
-                            onDelete={() => handleDeleteQna(currentQna.id)}
                         />
                     )}
                 </AnimatePresence>
