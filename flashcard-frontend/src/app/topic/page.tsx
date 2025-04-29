@@ -41,7 +41,6 @@ export default function TopicDetailPage() {
 
     const handleEditTopic = () => {
         if (topicId) {
-            localStorage.setItem('editing_topic_id', topicId);
             router.push(`/topic/${topicId}/edit`);
         }
     };

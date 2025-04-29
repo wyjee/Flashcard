@@ -10,9 +10,13 @@ interface QNAUpdateForm {
 }
 
 export const useCreateQna = () => {
+    const queryClient = useQueryClient();
     return useMutation({
         mutationFn: ({topicId, question, answer}: { topicId: number, question: string, answer: string }) =>
-            api.post(`/topics/${topicId}/qnas`, {qnas: [{question, answer}]}).then(res => res.data.createdQna),
+            api.post(`/qnas`, {topic_id: topicId, question, answer}).then(res => res.data),
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['topicDetail'] });
+        },
     });
 };
 

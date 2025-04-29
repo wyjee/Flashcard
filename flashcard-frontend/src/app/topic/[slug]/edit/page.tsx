@@ -19,8 +19,10 @@ export default function EditQnaPage() {
     const [qnas, setQnas] = useState<Qna[]>([]);
 
     useEffect(() => {
-        if (topicDetail?.qnas) {
+        if (topicDetail?.qnas?.length) {
             setQnas(topicDetail.qnas);
+        } else {
+            setQnas([]);
         }
     }, [topicDetail]);
 
@@ -39,7 +41,10 @@ export default function EditQnaPage() {
 
     const handleUpdate = async (index: number) => {
         const qna = qnas[index];
-        if (!qna.id) return;
+        if (!qna?.id) {
+            alert('This QnA has no ID and cannot be updated.');
+            return;
+        }
 
         await updateQna.mutateAsync({
             qnaId: qna.id,
@@ -51,7 +56,10 @@ export default function EditQnaPage() {
 
     const handleDelete = async (index: number) => {
         const qna = qnas[index];
-        if (!qna.id) return;
+        if (!qna?.id) {
+            alert('This QnA has no ID and cannot be updated.');
+            return;
+        }
 
         if (confirm('Are you sure you want to delete this QnA?')) {
             await deleteQna.mutateAsync(qna.id);
@@ -75,46 +83,48 @@ export default function EditQnaPage() {
     return (
         <PageWrapper title="Edit QnAs">
             <div className="max-w-md mx-auto space-y-6 mt-6">
-                {qnas.map((qna, idx) => (
-                    <div key={qna.id || idx} className="p-4 shadow rounded space-y-2 border">
-                        <input
-                            placeholder="Question"
-                            value={qna.question}
-                            onChange={(e) => handleChange(idx, 'question', e.target.value)}
-                            className="w-full px-4 py-2 rounded
+                {qnas.map((qna, idx) => {
+                    return (
+                        <div key={qna?.id} className="p-4 shadow rounded space-y-2 border">
+                            <input
+                                placeholder="Question"
+                                value={qna?.question || ''}
+                                onChange={(e) => handleChange(idx, 'question', e.target.value)}
+                                className="w-full px-4 py-2 rounded
                                 bg-surface-light dark:bg-gray-800
                                 border border-gray-300 dark:border-gray-700
                                 text-text-light dark:text-white
                                 placeholder-gray-400 dark:placeholder-gray-500"
-                            required
-                        />
-                        <textarea
-                            placeholder="Answer"
-                            value={qna.answer}
-                            onChange={(e) => handleChange(idx, 'answer', e.target.value)}
-                            className="w-full px-4 py-2 rounded
+                                required
+                            />
+                            <textarea
+                                placeholder="Answer"
+                                value={qna?.answer || ''}
+                                onChange={(e) => handleChange(idx, 'answer', e.target.value)}
+                                className="w-full px-4 py-2 rounded
                                 bg-surface-light dark:bg-gray-800
                                 border border-gray-300 dark:border-gray-700
                                 text-text-light dark:text-white
                                 placeholder-gray-400 dark:placeholder-gray-500"
-                            required
-                        />
-                        <div className="flex justify-between gap-2">
-                            <button
-                                onClick={() => handleUpdate(idx)}
-                                className="flex-1 bg-blue-500 text-white py-2 rounded hover:bg-blue-600"
-                            >
-                                Update
-                            </button>
-                            <button
-                                onClick={() => handleDelete(idx)}
-                                className="flex-1 bg-red-500 text-white py-2 rounded hover:bg-red-600"
-                            >
-                                Delete
-                            </button>
+                                required
+                            />
+                            <div className="flex justify-between gap-2">
+                                <button
+                                    onClick={() => handleUpdate(idx)}
+                                    className="flex-1 bg-blue-500 text-white py-2 rounded hover:bg-blue-600"
+                                >
+                                    Update
+                                </button>
+                                <button
+                                    onClick={() => handleDelete(idx)}
+                                    className="flex-1 bg-red-500 text-white py-2 rounded hover:bg-red-600"
+                                >
+                                    Delete
+                                </button>
+                            </div>
                         </div>
-                    </div>
-                ))}
+                    )
+                })}
 
                 <button
                     type="button"
