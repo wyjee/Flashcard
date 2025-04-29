@@ -19,7 +19,6 @@ app.add_middleware(
 
 @app.middleware("http")
 async def log_requests(request: Request, call_next):
-    print(">>> 요청 경로:", request.url)
     response = await call_next(request)
     return response
 

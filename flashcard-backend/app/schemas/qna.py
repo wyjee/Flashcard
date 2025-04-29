@@ -15,6 +15,7 @@ class QNAUpdate(QNABase):
 
 class QNAOut(QNABase):
     id: int
+    topic_id: int
     question: str
     answer: str
     created_at: datetime

@@ -46,7 +46,7 @@ def create_multiple_qnas(
     if topic.user_id != current_user.id:
         raise HTTPException(status_code=403, detail="Not your topic")
 
-    new_qnas = []
+    updated_list = []
     for qna in payload.qnas:
         new_qna = QNA(
             topic_id=topic_id,
@@ -54,10 +54,10 @@ def create_multiple_qnas(
             answer=qna.answer,
         )
         db.add(new_qna)
-        new_qnas.append(new_qna)
+        updated_list.append(new_qna)
 
     db.commit()
-    return {"created": len(new_qnas)}
+    return {"created": updated_list}
 
 @router.get("", response_model=List[TopicOut])
 def get_topics(

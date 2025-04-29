@@ -3,6 +3,7 @@ from sqlalchemy.orm import Session
 from app.db.session import get_db
 from app.models.qna import QNA
 from app.models.user import User
+from app.models.topic import Topic
 from app.routers.auth import get_current_user
 from app.schemas.qna import QNACreate, QNAUpdate, QNAOut
 
@@ -14,6 +15,13 @@ def create_qna(
         db: Session = Depends(get_db),
         current_user: User = Depends(get_current_user)
 ):
+    topic = db.query(Topic).filter(Topic.id == qna.topic_id).first()
+    if not topic:
+        raise HTTPException(status_code=404, detail="Topic not found")
+
+    if topic.user_id != current_user.id:
+        raise HTTPException(status_code=403, detail="Not your topic")
+
     new_qna = QNA(
         topic_id=qna.topic_id,
         question=qna.question,
