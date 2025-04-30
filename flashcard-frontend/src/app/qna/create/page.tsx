@@ -69,7 +69,7 @@ export default function CreateQnaPage() {
             <form onSubmit={handleSubmit} className="max-w-md mx-auto space-y-4 mt-6">
                 {qnas.map((qna, idx) => (
                     <div key={idx} className="py-4 rounded">
-                        <input
+                        <textarea
                             placeholder="Question"
                             value={qna.question}
                             onChange={(e) => handleChange(idx, 'question', e.target.value)}

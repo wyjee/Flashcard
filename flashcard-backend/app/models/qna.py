@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, ForeignKey, DateTime
+from sqlalchemy import Column, Integer, String, ForeignKey, DateTime, Text
 from sqlalchemy.orm import relationship
 from datetime import datetime
 
@@ -9,7 +9,7 @@ class QNA(Base):
 
     id = Column(Integer, primary_key=True, index=True)
     question = Column(String, nullable=False)
-    answer = Column(String, nullable=False)
+    answer = Column(Text, nullable=False)
     created_at = Column(DateTime, default=datetime.utcnow)
 
     topic_id = Column(Integer, ForeignKey("topics.id"), nullable=False)

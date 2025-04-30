@@ -46,7 +46,7 @@ export default function TopicDetailPage() {
     };
 
     const handleDeleteTopic = async () => {
-        if (topicId && confirm('정말 삭제할까요?')) {
+        if (topicId && confirm('Are you sure you want to delete this topic?')) {
             await deleteTopic.mutateAsync(Number(topicId));
             router.push('/topic/list');
         }
@@ -56,38 +56,51 @@ export default function TopicDetailPage() {
         <div className="p-6 flex flex-col items-center gap-4">
             <h1 className="text-xl font-bold mb-2">{topicTitle}</h1>
 
-            <div className="relative w-full h-[300px] flex items-center justify-center overflow-hidden">
-                <AnimatePresence mode="wait">
-                    {currentQna && (
-                        <QnaItem
-                            qna={currentQna}
-                            onSwipeNext={handleNext}
-                            onSwipePrev={handlePrev}
-                        />
+            {isError && <p className="text-red-500">Failed to load topic.</p>}
+            {isLoading && <p>Loading...</p>}
+
+            {!isError && !isLoading && (
+                <>
+                    <div className="relative w-full h-[300px] flex items-center justify-center overflow-hidden">
+                        <AnimatePresence mode="wait">
+                            {topicDetail?.qnas?.length ? (
+                                <QnaItem
+                                    qna={topicDetail.qnas[currentIndex]}
+                                    onSwipeNext={handleNext}
+                                    onSwipePrev={handlePrev}
+                                />
+                            ) : (
+                                <p>No QNAs available.</p>
+                            )}
+                        </AnimatePresence>
+                    </div>
+
+                    {topicDetail?.qnas?.length > 0 && (
+                        <>
+                            <div className="flex gap-4 mt-4">
+                                <button
+                                    className="bg-gray-200 px-4 py-2 rounded disabled:opacity-50"
+                                    onClick={handlePrev}
+                                    disabled={currentIndex === 0}
+                                >
+                                    ◀
+                                </button>
+                                <button
+                                    className="bg-blue-500 text-white px-4 py-2 rounded disabled:opacity-50"
+                                    onClick={handleNext}
+                                    disabled={currentIndex >= topicDetail.qnas.length - 1}
+                                >
+                                    ▶
+                                </button>
+                            </div>
+
+                            <p className="text-sm text-gray-500 mt-2">
+                                {currentIndex + 1} / {topicDetail.qnas.length}
+                            </p>
+                        </>
                     )}
-                </AnimatePresence>
-            </div>
-
-            <div className="flex gap-4 mt-4">
-                <button
-                    className="bg-gray-200 px-4 py-2 rounded disabled:opacity-50"
-                    onClick={handlePrev}
-                    disabled={currentIndex === 0}
-                >
-                    ◀
-                </button>
-                <button
-                    className="bg-blue-500 text-white px-4 py-2 rounded disabled:opacity-50"
-                    onClick={handleNext}
-                    disabled={currentIndex >= qnas.length - 1}
-                >
-                    ▶
-                </button>
-            </div>
-
-            <p className="text-sm text-gray-500 mt-2">
-                {currentIndex + 1} / {qnas.length}
-            </p>
+                </>
+            )}
 
             <DropdownMenu>
                 <DropdownMenuTrigger className="fixed bottom-4 right-4 bg-gray-800 text-white px-3 py-2 rounded shadow hover:bg-gray-700 transition">
@@ -96,6 +109,7 @@ export default function TopicDetailPage() {
                 <DropdownMenuContent>
                     <DropdownMenuItem onClick={handleEditTopic}>Edit Topic</DropdownMenuItem>
                     <DropdownMenuItem onClick={handleDeleteTopic}>Delete Topic</DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => router.push('/')}>Go to Home</DropdownMenuItem>
                 </DropdownMenuContent>
             </DropdownMenu>
         </div>

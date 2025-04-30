@@ -71,8 +71,9 @@ export default function QnaCard({
 
                 {/* 뒷면 */}
                 <div
-                    className="absolute w-full h-full backface-hidden bg-gray-100 border rounded-xl shadow-lg p-6 rotate-y-180 flex flex-col justify-center items-center text-center">
-                    <p className="text-sm text-gray-800">{qna.answer}</p>
+                    className="absolute w-full h-full backface-hidden bg-gray-100 border rounded-xl shadow-lg p-6 rotate-y-180 flex flex-col justify-center items-center text-center"
+                >
+                    <p className="text-sm text-gray-800 whitespace-pre-line">{qna.answer}</p>
                 </div>
             </div>
         </motion.div>
