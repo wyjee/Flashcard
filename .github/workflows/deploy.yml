@@ -1,0 +1,30 @@
+name: Trigger GCP Cloud Build
+
+on:
+  push:
+    branches: [dev]
+
+jobs:
+  trigger-cloudbuild:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Set up Google Cloud SDK
+        uses: google-github-actions/setup-gcloud@v1
+        with:
+          project_id: flashcard-project-2025
+          service_account_key: ${{ secrets.GCP_SA_KEY }}
+          export_default_credentials: true
+
+      - name: Trigger Cloud Build
+        run: |
+          COMMIT_MSG=$(git log -1 --pretty=%B)
+          echo "Triggering Cloud Build with message: $COMMIT_MSG"
+
+          gcloud builds submit \
+            --config=cloudbuild.yaml \
+            --substitutions=_CLUSTER_NAME="flashcard-cluster",_CLUSTER_REGION="asia-northeast3",_PROJECT_ID="flashcard-project-2025" \
+            .
