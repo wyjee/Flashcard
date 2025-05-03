@@ -6,7 +6,7 @@ steps:
       - -c
       - |
         COMMIT_MSG=$(git log -1 --pretty=%B)
-        echo "COMMIT_MSG=$COMMIT_MSG" > /workspace/commit.env
+        echo "COMMIT_MSG=$COMMIT_MSG" > /workspace/commit/commit.env
 
   - name: gcr.io/cloud-builders/gcloud
     id: get-credentials
@@ -23,7 +23,7 @@ steps:
     args:
       - -c
       - |
-        source /workspace/commit.env
+        source /workspace/commit/commit.env
         if echo "$COMMIT_MSG" | grep -Eq "\[fe\]|\bfe\b|/fe"; then
           echo "📦 Building frontend..."
           docker build --no-cache \
@@ -38,7 +38,7 @@ steps:
     args:
       - -c
       - |
-        source /workspace/commit.env
+        source /workspace/commit/commit.env
         if echo "$COMMIT_MSG" | grep -Eq "\[be\]|\bbe\b|/be"; then
           echo "📦 Building backend..."
           docker build --no-cache \
@@ -52,7 +52,7 @@ steps:
     args:
       - -c
       - |
-        source /workspace/commit.env
+        source /workspace/commit/commit.env
         if echo "$COMMIT_MSG" | grep -Eq "\[fe\]|\bfe\b|/fe"; then
           echo "🚀 Deploying frontend with Helm"
           helm upgrade flashcard-frontend ${_FE_CHART_PATH} \
@@ -65,11 +65,16 @@ steps:
     args:
       - -c
       - |
-        source /workspace/commit.env
+        source /workspace/commit/commit.env
         if echo "$COMMIT_MSG" | grep -Eq "\[be\]|\bbe\b|/be"; then
           echo "🚀 Deploying backend with Helm"
           helm upgrade flashcard-backend ${_BE_CHART_PATH} \
             --install --set image.tag=$SHORT_SHA
         fi
+
+options:
+  volumes:
+    - name: commit-msg
+      path: /workspace/commit
 
 timeout: 1200s
