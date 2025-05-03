@@ -21,7 +21,7 @@ jobs:
 
       - name: Activate service account
         run: |
-          echo "${{ secrets.GCP_SA_KEY }}" > key.json
+          echo "${{ secrets.GCP_SA_KEY }}" | base64 --decode > key.json
           gcloud auth activate-service-account --key-file=key.json
           ACCOUNT=$(gcloud config list account --format="value(core.account)")
           gcloud config set account "$ACCOUNT"
