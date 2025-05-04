@@ -1,16 +1,4 @@
 steps:
-  - name: gcr.io/cloud-builders/git
-    entrypoint: bash
-    id: extract-commit-msg
-    args:
-      - -c
-      - |
-        COMMIT_MSG=$(git log -1 --pretty=%B)
-        echo "COMMIT_MSG=$COMMIT_MSG" > /workspace/commit/commit.env
-    volumes:
-      - name: commit-msg
-        path: /workspace/commit
-
   - name: gcr.io/cloud-builders/gcloud
     id: get-credentials
     args:
@@ -19,9 +7,6 @@ steps:
         "--region", "${_CLUSTER_REGION}",
         "--project", "${_PROJECT_ID}"
       ]
-    volumes:
-      - name: commit-msg
-        path: /workspace/commit
 
   - name: gcr.io/cloud-builders/docker
     id: build-frontend
@@ -29,17 +14,13 @@ steps:
     args:
       - -c
       - |
-        source /workspace/commit/commit.env
+        COMMIT_MSG=$(git log -1 --pretty=%B)
         if echo "$COMMIT_MSG" | grep -Eq "\[fe\]|\bfe\b|/fe"; then
-          echo "📦 Building frontend..."
           docker build --no-cache \
             --build-arg NEXT_PUBLIC_API_BASE_URL=https://api.34-22-91-115.nip.io \
             -t gcr.io/${_PROJECT_ID}/nextjs-app:$SHORT_SHA ./flashcard-frontend
           docker push gcr.io/${_PROJECT_ID}/nextjs-app:$SHORT_SHA
         fi
-    volumes:
-      - name: commit-msg
-        path: /workspace/commit
 
   - name: gcr.io/cloud-builders/docker
     id: build-backend
@@ -47,16 +28,12 @@ steps:
     args:
       - -c
       - |
-        source /workspace/commit/commit.env
+        COMMIT_MSG=$(git log -1 --pretty=%B)
         if echo "$COMMIT_MSG" | grep -Eq "\[be\]|\bbe\b|/be"; then
-          echo "📦 Building backend..."
           docker build --no-cache \
             -t gcr.io/${_PROJECT_ID}/fastapi-app:$SHORT_SHA ./flashcard-backend
           docker push gcr.io/${_PROJECT_ID}/fastapi-app:$SHORT_SHA
         fi
-    volumes:
-      - name: commit-msg
-        path: /workspace/commit
 
   - name: gcr.io/cloud-builders/helm
     id: deploy-frontend
@@ -64,15 +41,11 @@ steps:
     args:
       - -c
       - |
-        source /workspace/commit/commit.env
+        COMMIT_MSG=$(git log -1 --pretty=%B)
         if echo "$COMMIT_MSG" | grep -Eq "\[fe\]|\bfe\b|/fe"; then
-          echo "🚀 Deploying frontend with Helm"
           helm upgrade flashcard-frontend ${_FE_CHART_PATH} \
             --install --set image.tag=$SHORT_SHA
         fi
-    volumes:
-      - name: commit-msg
-        path: /workspace/commit
 
   - name: gcr.io/cloud-builders/helm
     id: deploy-backend
@@ -80,19 +53,10 @@ steps:
     args:
       - -c
       - |
-        source /workspace/commit/commit.env
+        COMMIT_MSG=$(git log -1 --pretty=%B)
         if echo "$COMMIT_MSG" | grep -Eq "\[be\]|\bbe\b|/be"; then
-          echo "🚀 Deploying backend with Helm"
           helm upgrade flashcard-backend ${_BE_CHART_PATH} \
             --install --set image.tag=$SHORT_SHA
         fi
-    volumes:
-      - name: commit-msg
-        path: /workspace/commit
-
-options:
-  volumes:
-    - name: commit-msg
-      path: /workspace/commit
 
 timeout: 1200s
