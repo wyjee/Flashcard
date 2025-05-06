@@ -24,6 +24,7 @@ steps:
       - |
         echo "📍frontend [PWD]: $(pwd)"
         ls -al
+        SHORT_SHA=${SHORT_SHA:-"manual-$(date +%s)"}
         if echo "${_COMMIT_MSG}" | grep -Eq "\[fe\]|\bfe\b|/fe"; then
           echo "✅ Detected frontend tag in commit message"
           docker build --no-cache \
@@ -42,6 +43,7 @@ steps:
       - |
         echo "📍backend [PWD]: $(pwd)"
         ls -al
+        SHORT_SHA=${SHORT_SHA:-"manual-$(date +%s)"}
         if echo "${_COMMIT_MSG}" | grep -Eq "\[be\]|\bbe\b|/be"; then
           echo "✅ Detected backend tag in commit message"
           docker build --no-cache \
@@ -57,6 +59,7 @@ steps:
     args:
       - -c
       - |
+        SHORT_SHA=${SHORT_SHA:-"manual-$(date +%s)"}
         if echo "${_COMMIT_MSG}" | grep -Eq "\[fe\]|\bfe\b|/fe"; then
           echo "🚀 Deploying frontend with Helm"
           helm upgrade flashcard-frontend ${_FE_CHART_PATH} \
@@ -71,6 +74,7 @@ steps:
     args:
       - -c
       - |
+        SHORT_SHA=${SHORT_SHA:-"manual-$(date +%s)"}
         if echo "${_COMMIT_MSG}" | grep -Eq "\[be\]|\bbe\b|/be"; then
           echo "🚀 Deploying backend with Helm"
           helm upgrade flashcard-backend ${_BE_CHART_PATH} \
