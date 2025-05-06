@@ -5,6 +5,7 @@ substitutions:
   _FE_CHART_PATH: "flashcard-frontend/charts/nextjs"
   _BE_CHART_PATH: "flashcard-backend/charts/fastapi"
   _COMMIT_MSG: "default"
+  _SHORT_SHA: "default"
 
 steps:
   - name: gcr.io/cloud-builders/gcloud
@@ -24,13 +25,12 @@ steps:
       - |
         echo "📍frontend [PWD]: $(pwd)"
         ls -al
-        SHORT_SHA=${SHORT_SHA:-"manual-$(date +%s)"}
         if echo "${_COMMIT_MSG}" | grep -Eq "\[fe\]|\bfe\b|/fe"; then
           echo "✅ Detected frontend tag in commit message"
           docker build --no-cache \
             --build-arg NEXT_PUBLIC_API_BASE_URL=https://api.34-22-91-115.nip.io \
-            -t gcr.io/${_PROJECT_ID}/nextjs-app:$SHORT_SHA ./flashcard-frontend
-          docker push gcr.io/${_PROJECT_ID}/nextjs-app:$SHORT_SHA
+            -t gcr.io/${_PROJECT_ID}/nextjs-app:${_SHORT_SHA} ./flashcard-frontend
+          docker push gcr.io/${_PROJECT_ID}/nextjs-app:${_SHORT_SHA}
         else
           echo "ℹ️ Skipping frontend build (no [fe] tag)"
         fi
@@ -43,12 +43,11 @@ steps:
       - |
         echo "📍backend [PWD]: $(pwd)"
         ls -al
-        SHORT_SHA=${SHORT_SHA:-"manual-$(date +%s)"}
         if echo "${_COMMIT_MSG}" | grep -Eq "\[be\]|\bbe\b|/be"; then
           echo "✅ Detected backend tag in commit message"
           docker build --no-cache \
-            -t gcr.io/${_PROJECT_ID}/fastapi-app:$SHORT_SHA ./flashcard-backend
-          docker push gcr.io/${_PROJECT_ID}/fastapi-app:$SHORT_SHA
+            -t gcr.io/${_PROJECT_ID}/fastapi-app:${_SHORT_SHA} ./flashcard-backend
+          docker push gcr.io/${_PROJECT_ID}/fastapi-app:${_SHORT_SHA}
         else
           echo "ℹ️ Skipping backend build (no [be] tag)"
         fi
@@ -59,11 +58,10 @@ steps:
     args:
       - -c
       - |
-        SHORT_SHA=${SHORT_SHA:-"manual-$(date +%s)"}
         if echo "${_COMMIT_MSG}" | grep -Eq "\[fe\]|\bfe\b|/fe"; then
           echo "🚀 Deploying frontend with Helm"
           helm upgrade flashcard-frontend ${_FE_CHART_PATH} \
-            --install --set image.tag=$SHORT_SHA
+            --install --set image.tag=${_SHORT_SHA}
         else
           echo "ℹ️ Skipping frontend deployment"
         fi
@@ -74,11 +72,10 @@ steps:
     args:
       - -c
       - |
-        SHORT_SHA=${SHORT_SHA:-"manual-$(date +%s)"}
         if echo "${_COMMIT_MSG}" | grep -Eq "\[be\]|\bbe\b|/be"; then
           echo "🚀 Deploying backend with Helm"
           helm upgrade flashcard-backend ${_BE_CHART_PATH} \
-            --install --set image.tag=$SHORT_SHA
+            --install --set image.tag=${_SHORT_SHA}
         else
           echo "ℹ️ Skipping backend deployment"
         fi

@@ -28,7 +28,7 @@ jobs:
 
       - name: Trigger Cloud Build
         run: |
-          COMMIT_MSG=$(git log -1 --pretty=%B)
+          COMMIT_MSG=$(git show -s --format=%B $GITHUB_SHA)
           echo "📍 COMMIT_MSG: $COMMIT_MSG"
           gcloud builds submit \
             --config=cloudbuild.yaml \
