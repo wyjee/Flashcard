@@ -1,6 +1,6 @@
 substitutions:
   _CLUSTER_NAME: "flashcard-cluster"
-  _CLUSTER_REGION: "asia-northeast3"
+  _CLUSTER_REGION: "asia-northeast3-a"
   _PROJECT_ID: "flashcard-project-2025"
   _FE_CHART_PATH: "flashcard-frontend/charts/nextjs"
   _BE_CHART_PATH: "flashcard-backend/charts/fastapi"
@@ -12,7 +12,7 @@ steps:
     args:
       [
         "container", "clusters", "get-credentials", "${_CLUSTER_NAME}",
-        "--region", "${_CLUSTER_REGION}",
+        "--zone", "${_CLUSTER_REGION}",
         "--project", "${_PROJECT_ID}"
       ]
 
