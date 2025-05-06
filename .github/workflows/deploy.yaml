@@ -26,6 +26,10 @@ jobs:
           ACCOUNT=$(gcloud config list account --format="value(core.account)")
           gcloud config set account "$ACCOUNT"
 
+      - name: Install gcloud beta component
+        run: |
+          gcloud components install beta --quiet
+
       - name: Trigger Cloud Build
         run: |
           COMMIT_MSG=$(git log -1 --pretty=%B | tr -d '\n')
