@@ -15,7 +15,7 @@ export default function TopicDetailPage() {
     const topicId = searchParams.get('id');
     const [currentIndex, setCurrentIndex] = useState(0);
     const [topicTitle, setTopicTitle] = useState('');
-    const { data: topicDetail, isLoading, isError } = useTopicDetail(Number(topicId));
+    const {data: topicDetail, isLoading, isError} = useTopicDetail(Number(topicId));
     const deleteTopic = useDeleteTopic();
 
     useEffect(() => {
@@ -29,7 +29,6 @@ export default function TopicDetailPage() {
     if (isError || !topicDetail?.qnas?.length) return <p>No QNAs available.</p>;
 
     const qnas = topicDetail.qnas;
-    const currentQna = qnas[currentIndex];
 
     const handleNext = () => {
         setCurrentIndex((prev) => (prev + 1 < qnas.length ? prev + 1 : prev));
@@ -103,8 +102,9 @@ export default function TopicDetailPage() {
             )}
 
             <DropdownMenu>
-                <DropdownMenuTrigger className="fixed bottom-4 right-4 bg-gray-800 text-white px-3 py-2 rounded shadow hover:bg-gray-700 transition">
-                    <MoreVertical />
+                <DropdownMenuTrigger
+                    className="fixed bottom-4 right-4 bg-gray-800 text-white px-3 py-2 rounded shadow hover:bg-gray-700 transition">
+                    <MoreVertical/>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent>
                     <DropdownMenuItem onClick={handleEditTopic}>Edit Topic</DropdownMenuItem>
