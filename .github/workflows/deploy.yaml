@@ -28,11 +28,13 @@ jobs:
 
       - name: Trigger Cloud Build
         run: |
-          COMMIT_MSG=$(git show -s --format=%B $GITHUB_SHA)
+          COMMIT_MSG=$(git log -1 --pretty=%B | tr -d '\n')
           echo "📍 COMMIT_MSG: $COMMIT_MSG"
+
           SHORT_SHA=$(git rev-parse --short $GITHUB_SHA 2>/dev/null || echo "manual-$(date +%s)")
           echo "📍 SHORT_SHA: $SHORT_SHA"
-          gcloud builds submit \
+
+          gcloud beta builds submit \
             --config=cloudbuild.yaml \
             --no-stream \
             --substitutions=_CLUSTER_NAME="flashcard-cluster",_CLUSTER_REGION="asia-northeast3-a",_PROJECT_ID="flashcard-project-2025",_FE_CHART_PATH="flashcard-frontend/charts/nextjs",_BE_CHART_PATH="flashcard-backend/charts/fastapi",_COMMIT_MSG="${COMMIT_MSG}",_SHORT_SHA="${SHORT_SHA}" \
