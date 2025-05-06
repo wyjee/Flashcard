@@ -53,31 +53,31 @@ steps:
         fi
 
   - name: gcr.io/cloud-builders/kubectl
-    id: deploy-frontend
+    id: deploy-with-helm
     entrypoint: bash
     args:
       - -c
       - |
-        curl https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
+        curl -sSL https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
+
         if echo "${_COMMIT_MSG}" | grep -Eq "\[fe\]|\bfe\b|/fe"; then
           echo "🚀 Deploying frontend with Helm using tag: ${_SHORT_SHA}"
           helm upgrade flashcard-frontend ${_FE_CHART_PATH} \
-            --install --set image.tag=${_SHORT_SHA}
+            --install \
+            --wait \
+            --set image.repository=gcr.io/${_PROJECT_ID}/nextjs-app \
+            --set image.tag=${_SHORT_SHA}
         else
           echo "ℹ️ Skipping frontend deployment"
         fi
 
-  - name: gcr.io/cloud-builders/kubectl
-    id: deploy-backend
-    entrypoint: bash
-    args:
-      - -c
-      - |
-        curl https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
         if echo "${_COMMIT_MSG}" | grep -Eq "\[be\]|\bbe\b|/be"; then
           echo "🚀 Deploying backend with Helm using tag: ${_SHORT_SHA}"
           helm upgrade flashcard-backend ${_BE_CHART_PATH} \
-            --install --set image.tag=${_SHORT_SHA}
+            --install \
+            --wait \
+            --set image.repository=gcr.io/${_PROJECT_ID}/fastapi-app \
+            --set image.tag=${_SHORT_SHA}
         else
           echo "ℹ️ Skipping backend deployment"
         fi
