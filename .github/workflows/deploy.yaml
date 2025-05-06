@@ -39,12 +39,17 @@ jobs:
             --substitutions=_CLUSTER_NAME="flashcard-cluster",_CLUSTER_REGION="asia-northeast3-a",_PROJECT_ID="flashcard-project-2025",_FE_CHART_PATH="flashcard-frontend/charts/nextjs",_BE_CHART_PATH="flashcard-backend/charts/fastapi",_COMMIT_MSG="${COMMIT_MSG}",_SHORT_SHA="${SHORT_SHA}" \
             --format='value(metadata.build.id)' \
             .)
+          
+          if [[ -z "$BUILD_ID" ]]; then
+            echo "❌ Failed to submit build. No BUILD_ID returned."
+            exit 1
+          fi
 
           echo "📦 Build ID: $BUILD_ID"
           echo "View Logs: https://console.cloud.google.com/cloud-build/builds/$BUILD_ID?project=flashcard-project-2025"
 
           echo "⏳ Waiting for build to finish..."
-          for i in {1..60}; do
+          for i in {1..120}; do
             STATUS=$(gcloud builds describe "$BUILD_ID" --format='value(status)')
             echo "Current build status: $STATUS"
             if [[ "$STATUS" == "SUCCESS" ]]; then
