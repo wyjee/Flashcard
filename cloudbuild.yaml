@@ -1,9 +1,10 @@
 substitutions:
-  _CLUSTER_NAME: flashcard-cluster
-  _CLUSTER_REGION: asia-northeast3
-  _PROJECT_ID: flashcard-project-2025
-  _FE_CHART_PATH: flashcard-frontend/charts/nextjs
-  _BE_CHART_PATH: flashcard-backend/charts/fastapi
+  _CLUSTER_NAME: "flashcard-cluster"
+  _CLUSTER_REGION: "asia-northeast3"
+  _PROJECT_ID: "flashcard-project-2025"
+  _FE_CHART_PATH: "flashcard-frontend/charts/nextjs"
+  _BE_CHART_PATH: "flashcard-backend/charts/fastapi"
+  _COMMIT_MSG: "default"
 
 steps:
   - name: gcr.io/cloud-builders/gcloud
@@ -21,16 +22,16 @@ steps:
     args:
       - -c
       - |
-        echo "📍frontend [PWD]:"
-        pwd
-        echo "📍 [ls -al]:"
+        echo "📍frontend [PWD]: $(pwd)"
         ls -al
-        COMMIT_MSG=$(git log -1 --pretty=%B)
-        if echo "$COMMIT_MSG" | grep -Eq "\[fe\]|\bfe\b|/fe"; then
+        if echo "${_COMMIT_MSG}" | grep -Eq "\[fe\]|\bfe\b|/fe"; then
+          echo "✅ Detected frontend tag in commit message"
           docker build --no-cache \
             --build-arg NEXT_PUBLIC_API_BASE_URL=https://api.34-22-91-115.nip.io \
             -t gcr.io/${_PROJECT_ID}/nextjs-app:$SHORT_SHA ./flashcard-frontend
           docker push gcr.io/${_PROJECT_ID}/nextjs-app:$SHORT_SHA
+        else
+          echo "ℹ️ Skipping frontend build (no [fe] tag)"
         fi
 
   - name: gcr.io/cloud-builders/docker
@@ -39,15 +40,15 @@ steps:
     args:
       - -c
       - |
-        echo "📍backend [PWD]:"
-        pwd
-        echo "📍 [ls -al]:"
+        echo "📍backend [PWD]: $(pwd)"
         ls -al
-        COMMIT_MSG=$(git log -1 --pretty=%B)
-        if echo "$COMMIT_MSG" | grep -Eq "\[be\]|\bbe\b|/be"; then
+        if echo "${_COMMIT_MSG}" | grep -Eq "\[be\]|\bbe\b|/be"; then
+          echo "✅ Detected backend tag in commit message"
           docker build --no-cache \
             -t gcr.io/${_PROJECT_ID}/fastapi-app:$SHORT_SHA ./flashcard-backend
           docker push gcr.io/${_PROJECT_ID}/fastapi-app:$SHORT_SHA
+        else
+          echo "ℹ️ Skipping backend build (no [be] tag)"
         fi
 
   - name: gcr.io/cloud-builders/helm
@@ -56,10 +57,12 @@ steps:
     args:
       - -c
       - |
-        COMMIT_MSG=$(git log -1 --pretty=%B)
-        if echo "$COMMIT_MSG" | grep -Eq "\[fe\]|\bfe\b|/fe"; then
+        if echo "${_COMMIT_MSG}" | grep -Eq "\[fe\]|\bfe\b|/fe"; then
+          echo "🚀 Deploying frontend with Helm"
           helm upgrade flashcard-frontend ${_FE_CHART_PATH} \
             --install --set image.tag=$SHORT_SHA
+        else
+          echo "ℹ️ Skipping frontend deployment"
         fi
 
   - name: gcr.io/cloud-builders/helm
@@ -68,10 +71,12 @@ steps:
     args:
       - -c
       - |
-        COMMIT_MSG=$(git log -1 --pretty=%B)
-        if echo "$COMMIT_MSG" | grep -Eq "\[be\]|\bbe\b|/be"; then
+        if echo "${_COMMIT_MSG}" | grep -Eq "\[be\]|\bbe\b|/be"; then
+          echo "🚀 Deploying backend with Helm"
           helm upgrade flashcard-backend ${_BE_CHART_PATH} \
             --install --set image.tag=$SHORT_SHA
+        else
+          echo "ℹ️ Skipping backend deployment"
         fi
 
 timeout: 1200s
