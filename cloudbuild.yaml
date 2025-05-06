@@ -59,7 +59,7 @@ steps:
       - -c
       - |
         if echo "${_COMMIT_MSG}" | grep -Eq "\[fe\]|\bfe\b|/fe"; then
-          echo "🚀 Deploying frontend with Helm"
+          echo "🚀 Deploying frontend with Helm using tag: ${_SHORT_SHA}"
           helm upgrade flashcard-frontend ${_FE_CHART_PATH} \
             --install --set image.tag=${_SHORT_SHA}
         else
@@ -73,7 +73,7 @@ steps:
       - -c
       - |
         if echo "${_COMMIT_MSG}" | grep -Eq "\[be\]|\bbe\b|/be"; then
-          echo "🚀 Deploying backend with Helm"
+          echo "🚀 Deploying backend with Helm using tag: ${_SHORT_SHA}"
           helm upgrade flashcard-backend ${_BE_CHART_PATH} \
             --install --set image.tag=${_SHORT_SHA}
         else
