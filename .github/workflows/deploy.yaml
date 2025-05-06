@@ -23,44 +23,38 @@ jobs:
         run: |
           echo "${{ secrets.GCP_SA_KEY }}" | base64 --decode > key.json
           gcloud auth activate-service-account --key-file=key.json
-          ACCOUNT=$(gcloud config list account --format="value(core.account)")
-          gcloud config set account "$ACCOUNT"
 
-      - name: Trigger and Wait for Cloud Build
+      - name: Trigger Cloud Build and Monitor
         run: |
           COMMIT_MSG=$(git log -1 --pretty=%B | tr -d '\n')
-          echo "📍 COMMIT_MSG: $COMMIT_MSG"
-
           SHORT_SHA=$(git rev-parse --short $GITHUB_SHA 2>/dev/null || echo "manual-$(date +%s)")
+
+          echo "📍 COMMIT_MSG: $COMMIT_MSG"
 
           echo "🚀 Submitting Cloud Build..."
           BUILD_ID=$(gcloud builds submit \
             --config=cloudbuild.yaml \
             --substitutions=_CLUSTER_NAME="flashcard-cluster",_CLUSTER_REGION="asia-northeast3-a",_PROJECT_ID="flashcard-project-2025",_FE_CHART_PATH="flashcard-frontend/charts/nextjs",_BE_CHART_PATH="flashcard-backend/charts/fastapi",_COMMIT_MSG="${COMMIT_MSG}",_SHORT_SHA="${SHORT_SHA}" \
-            --format='value(metadata.build.id)' \
-            .)
-          
-          if [[ -z "$BUILD_ID" ]]; then
-            echo "❌ Failed to submit build. No BUILD_ID returned."
-            exit 1
-          fi
+            --format='value(metadata.build.id)' .)
 
-          echo "📦 Build ID: $BUILD_ID"
-          echo "View Logs: https://console.cloud.google.com/cloud-build/builds/$BUILD_ID?project=flashcard-project-2025"
+          echo "🔗 Build Logs: https://console.cloud.google.com/cloud-build/builds/$BUILD_ID?project=flashcard-project-2025"
 
-          echo "⏳ Waiting for build to finish..."
-          for i in {1..120}; do
+          echo "⏳ Waiting for build to complete..."
+          for i in {1..60}; do
             STATUS=$(gcloud builds describe "$BUILD_ID" --format='value(status)')
-            echo "Current build status: $STATUS"
-            if [[ "$STATUS" == "SUCCESS" ]]; then
-              echo "✅ Cloud Build succeeded"
-              exit 0
-            elif [[ "$STATUS" == "FAILURE" || "$STATUS" == "TIMEOUT" || "$STATUS" == "CANCELLED" ]]; then
-              echo "❌ Cloud Build failed with status: $STATUS"
-              exit 1
-            fi
+            echo "⌛ Build status: $STATUS"
+            case "$STATUS" in
+              SUCCESS)
+                echo "✅ Cloud Build succeeded"
+                exit 0
+                ;;
+              FAILURE|TIMEOUT|CANCELLED)
+                echo "❌ Cloud Build failed: $STATUS"
+                exit 1
+                ;;
+            esac
             sleep 10
           done
 
-          echo "❌ Cloud Build did not finish in expected time(1min)."
+          echo "❌ Cloud Build timed out after 10 minutes."
           exit 1
