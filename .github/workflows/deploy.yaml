@@ -26,15 +26,36 @@ jobs:
           ACCOUNT=$(gcloud config list account --format="value(core.account)")
           gcloud config set account "$ACCOUNT"
 
-      - name: Trigger Cloud Build
+      - name: Trigger and Wait for Cloud Build
         run: |
           COMMIT_MSG=$(git log -1 --pretty=%B | tr -d '\n')
           echo "📍 COMMIT_MSG: $COMMIT_MSG"
 
           SHORT_SHA=$(git rev-parse --short $GITHUB_SHA 2>/dev/null || echo "manual-$(date +%s)")
-          echo "📍 SHORT_SHA: $SHORT_SHA"
 
-          gcloud builds submit \
+          echo "🚀 Submitting Cloud Build..."
+          BUILD_ID=$(gcloud builds submit \
             --config=cloudbuild.yaml \
             --substitutions=_CLUSTER_NAME="flashcard-cluster",_CLUSTER_REGION="asia-northeast3-a",_PROJECT_ID="flashcard-project-2025",_FE_CHART_PATH="flashcard-frontend/charts/nextjs",_BE_CHART_PATH="flashcard-backend/charts/fastapi",_COMMIT_MSG="${COMMIT_MSG}",_SHORT_SHA="${SHORT_SHA}" \
-            .
+            --format='value(metadata.build.id)' \
+            .)
+
+          echo "📦 Build ID: $BUILD_ID"
+          echo "View Logs: https://console.cloud.google.com/cloud-build/builds/$BUILD_ID?project=flashcard-project-2025"
+
+          echo "⏳ Waiting for build to finish..."
+          for i in {1..60}; do
+            STATUS=$(gcloud builds describe "$BUILD_ID" --format='value(status)')
+            echo "Current build status: $STATUS"
+            if [[ "$STATUS" == "SUCCESS" ]]; then
+              echo "✅ Cloud Build succeeded"
+              exit 0
+            elif [[ "$STATUS" == "FAILURE" || "$STATUS" == "TIMEOUT" || "$STATUS" == "CANCELLED" ]]; then
+              echo "❌ Cloud Build failed with status: $STATUS"
+              exit 1
+            fi
+            sleep 10
+          done
+
+          echo "❌ Cloud Build did not finish in expected time(1min)."
+          exit 1
