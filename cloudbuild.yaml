@@ -21,6 +21,10 @@ steps:
     args:
       - -c
       - |
+        echo "📍frontend [PWD]:"
+        pwd
+        echo "📍 [ls -al]:"
+        ls -al
         COMMIT_MSG=$(git log -1 --pretty=%B)
         if echo "$COMMIT_MSG" | grep -Eq "\[fe\]|\bfe\b|/fe"; then
           docker build --no-cache \
@@ -35,6 +39,10 @@ steps:
     args:
       - -c
       - |
+        echo "📍backend [PWD]:"
+        pwd
+        echo "📍 [ls -al]:"
+        ls -al
         COMMIT_MSG=$(git log -1 --pretty=%B)
         if echo "$COMMIT_MSG" | grep -Eq "\[be\]|\bbe\b|/be"; then
           docker build --no-cache \
