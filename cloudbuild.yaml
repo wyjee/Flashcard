@@ -52,12 +52,13 @@ steps:
           echo "ℹ️ Skipping backend build (no [be] tag)"
         fi
 
-  - name: gcr.io/cloud-builders/helm
+  - name: gcr.io/cloud-builders/kubectl
     id: deploy-frontend
     entrypoint: bash
     args:
       - -c
       - |
+        curl https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
         if echo "${_COMMIT_MSG}" | grep -Eq "\[fe\]|\bfe\b|/fe"; then
           echo "🚀 Deploying frontend with Helm using tag: ${_SHORT_SHA}"
           helm upgrade flashcard-frontend ${_FE_CHART_PATH} \
@@ -66,12 +67,13 @@ steps:
           echo "ℹ️ Skipping frontend deployment"
         fi
 
-  - name: gcr.io/cloud-builders/helm
+  - name: gcr.io/cloud-builders/kubectl
     id: deploy-backend
     entrypoint: bash
     args:
       - -c
       - |
+        curl https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
         if echo "${_COMMIT_MSG}" | grep -Eq "\[be\]|\bbe\b|/be"; then
           echo "🚀 Deploying backend with Helm using tag: ${_SHORT_SHA}"
           helm upgrade flashcard-backend ${_BE_CHART_PATH} \
