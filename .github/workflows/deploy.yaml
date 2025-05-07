@@ -26,23 +26,27 @@ jobs:
 
       - name: Trigger Cloud Build and Monitor
         run: |
-          set -e  # 빌드 제출 자체 실패는 에러 처리
+          set -e
           COMMIT_MSG=$(git log -1 --pretty=%B | tr -d '\n')
           SHORT_SHA=$(git rev-parse --short $GITHUB_SHA 2>/dev/null || echo "manual-$(date +%s)")
 
           echo "📍 COMMIT_MSG: $COMMIT_MSG"
           echo "🚀 Submitting Cloud Build..."
 
-          BUILD_ID=$(gcloud builds submit \
+          BUILD_ID=""
+          if ! BUILD_ID=$(gcloud builds submit \
             --config=cloudbuild.yaml \
             --substitutions=_CLUSTER_NAME="flashcard-cluster",_CLUSTER_REGION="asia-northeast3-a",_PROJECT_ID="flashcard-project-2025",_FE_CHART_PATH="flashcard-frontend/charts/nextjs",_BE_CHART_PATH="flashcard-backend/charts/fastapi",_COMMIT_MSG="${COMMIT_MSG}",_SHORT_SHA="${SHORT_SHA}" \
-            --format='value(metadata.build.id)' .)
+            --format='value(metadata.build.id)' .); then
+            echo "❌ Failed to submit Cloud Build."
+            exit 1
+          fi
 
           echo "🔗 Build Logs: https://console.cloud.google.com/cloud-build/builds/$BUILD_ID?project=flashcard-project-2025"
-
           echo "⏳ Waiting for build result..."
+
           for i in {1..60}; do
-            STATUS=$(gcloud builds describe "$BUILD_ID" --format='value(status)')
+            STATUS=$(gcloud builds describe "$BUILD_ID" --format='value(status)' 2>/dev/null || echo "UNKNOWN")
             echo "⌛ Build status: $STATUS"
             case "$STATUS" in
               SUCCESS)
@@ -52,6 +56,9 @@ jobs:
               FAILURE|TIMEOUT|CANCELLED)
                 echo "❌ Build failed: $STATUS"
                 exit 1
+                ;;
+              UNKNOWN)
+                echo "⚠️ Build status unknown, retrying..."
                 ;;
             esac
             sleep 10
