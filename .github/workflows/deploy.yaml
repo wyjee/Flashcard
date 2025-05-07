@@ -46,6 +46,8 @@ jobs:
           echo "🔗 Build Logs: https://console.cloud.google.com/cloud-build/builds/$BUILD_ID?project=flashcard-project-2025"
 
           echo "⏳ Waiting for Cloud Build to complete..."
+          UNKNOWN_COUNT=0
+          MAX_UNKNOWN=5
           for i in {1..60}; do
             STATUS=$(gcloud builds describe "$BUILD_ID" --format='value(status)' 2>/dev/null || echo "UNKNOWN")
             echo "⌛ Build status: $STATUS"
@@ -60,6 +62,11 @@ jobs:
                 ;;
               UNKNOWN)
                 echo "⚠️ Build status unknown, retrying..."
+                UNKNOWN_COUNT=$((UNKNOWN_COUNT+1))
+                if [[ "$UNKNOWN_COUNT" -ge "$MAX_UNKNOWN" ]]; then
+                  echo "❌ Too many UNKNOWN responses from gcloud. Exiting..."
+                  exit 1
+                fi
                 ;;
             esac
             sleep 10
