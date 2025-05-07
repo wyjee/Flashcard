@@ -7,6 +7,9 @@ substitutions:
   _COMMIT_MSG: "default"
   _SHORT_SHA: "default"
 
+options:
+  logging: CLOUD_LOGGING_ONLY
+
 steps:
   - name: gcr.io/cloud-builders/gcloud
     id: get-credentials
