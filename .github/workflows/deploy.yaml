@@ -37,6 +37,7 @@ jobs:
 
           if ! BUILD_ID=$(gcloud builds submit \
             --config=cloudbuild.yaml \
+            --service-account=github-deployer@flashcard-project-2025.iam.gserviceaccount.com \
             --substitutions=_CLUSTER_NAME="flashcard-cluster",_CLUSTER_REGION="asia-northeast3-a",_PROJECT_ID="flashcard-project-2025",_FE_CHART_PATH="flashcard-frontend/charts/nextjs",_BE_CHART_PATH="flashcard-backend/charts/fastapi",_COMMIT_MSG="${COMMIT_MSG}",_SHORT_SHA="${SHORT_SHA}" \
             --format='value(metadata.build.id)' .); then
             echo "❌ Failed to submit build. No BUILD_ID received."
