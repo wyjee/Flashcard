@@ -27,34 +27,38 @@ jobs:
       - name: Trigger Cloud Build and Monitor
         run: |
           set -e
+
           COMMIT_MSG=$(git log -1 --pretty=%B | tr -d '\n')
-          SHORT_SHA=$(git rev-parse --short $GITHUB_SHA 2>/dev/null || echo "manual-$(date +%s)")
+          SHORT_SHA=$(git rev-parse --short "$GITHUB_SHA" 2>/dev/null || echo "manual-$(date +%s)")
 
           echo "📍 COMMIT_MSG: $COMMIT_MSG"
+          echo "📦 SHORT_SHA: $SHORT_SHA"
           echo "🚀 Submitting Cloud Build..."
 
-          if ! BUILD_ID=$(gcloud builds submit \
+          BUILD_ID=$(gcloud builds submit \
             --no-stream \
             --config=cloudbuild.yaml \
-            --substitutions=_CLUSTER_NAME="flashcard-cluster",_CLUSTER_REGION="asia-northeast3-a",_PROJECT_ID="flashcard-project-2025",_FE_CHART_PATH="flashcard-frontend/charts/nextjs",_BE_CHART_PATH="flashcard-backend/charts/fastapi",_COMMIT_MSG="$COMMIT_MSG",_SHORT_SHA="$SHORT_SHA" \
-            --format='value(metadata.build.id)' .); then
-            echo "❌ Failed to submit Cloud Build."
+            --substitutions=_CLUSTER_NAME="flashcard-cluster",_CLUSTER_REGION="asia-northeast3-a",_PROJECT_ID="flashcard-project-2025",_FE_CHART_PATH="flashcard-frontend/charts/nextjs",_BE_CHART_PATH="flashcard-backend/charts/fastapi",_COMMIT_MSG="${COMMIT_MSG}",_SHORT_SHA="${SHORT_SHA}" \
+            --format='value(metadata.build.id)' .)
+
+          if [[ -z "$BUILD_ID" ]]; then
+            echo "❌ Failed to submit build. No BUILD_ID received."
             exit 1
           fi
 
           echo "🔗 Build Logs: https://console.cloud.google.com/cloud-build/builds/$BUILD_ID?project=flashcard-project-2025"
-          echo "⏳ Waiting for build result..."
 
+          echo "⏳ Waiting for Cloud Build to complete..."
           for i in {1..60}; do
             STATUS=$(gcloud builds describe "$BUILD_ID" --format='value(status)' 2>/dev/null || echo "UNKNOWN")
             echo "⌛ Build status: $STATUS"
             case "$STATUS" in
               SUCCESS)
-                echo "✅ Build succeeded"
+                echo "✅ Cloud Build succeeded"
                 exit 0
                 ;;
               FAILURE|TIMEOUT|CANCELLED)
-                echo "❌ Build failed: $STATUS"
+                echo "❌ Cloud Build failed: $STATUS"
                 exit 1
                 ;;
               UNKNOWN)
@@ -64,5 +68,5 @@ jobs:
             sleep 10
           done
 
-          echo "❌ Timed out waiting for build to complete."
+          echo "❌ Build timed out after 10 minutes."
           exit 1
