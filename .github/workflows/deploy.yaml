@@ -22,18 +22,14 @@ jobs:
         with:
           project_id: flashcard-project-2025
 
-      - name: Check Active Account
-        run: gcloud auth list
-
-      - name: Trigger Cloud Build and Monitor
+      - name: Trigger Cloud Build
         run: |
           set -e
           COMMIT_MSG=$(git log -1 --pretty=%B | tr -d '\n')
           SHORT_SHA=$(git rev-parse --short "$GITHUB_SHA" 2>/dev/null || echo "manual-$(date +%s)")
 
-          echo "📍 COMMIT_MSG: $COMMIT_MSG"
-          echo "📦 SHORT_SHA: $SHORT_SHA"
-          echo "🚀 Submitting Cloud Build..."
+          echo "COMMIT_MSG: $COMMIT_MSG"
+          echo "SHORT_HASH: $SHORT_SHA"
 
           BUILD_OUTPUT=$(mktemp)
           gcloud builds submit \
@@ -43,45 +39,25 @@ jobs:
             --format='json' . | tee "$BUILD_OUTPUT"
 
           BUILD_ID=$(jq -r '.metadata.build.id // .id' "$BUILD_OUTPUT")
-
           if [[ -z "$BUILD_ID" || "$BUILD_ID" == "null" ]]; then
-            echo "❌ Failed to submit build. No BUILD_ID received."
+            echo "ERROR: No BUILD_ID received."
             exit 1
           fi
 
-          echo "🔗 Build Logs: https://console.cloud.google.com/cloud-build/builds/$BUILD_ID?project=flashcard-project-2025"
+          echo "Build Logs: https://console.cloud.google.com/cloud-build/builds/$BUILD_ID?project=flashcard-project-2025"
 
-          # ✅ 실제 사용된 서비스 계정?
-          echo "🔍 Checking which service account was used..."
-          gcloud builds describe "$BUILD_ID" --project=flashcard-project-2025 \
-            --format="value(serviceAccount)"
-
-          echo "⏳ Waiting for Cloud Build to complete..."
-          UNKNOWN_COUNT=0
-          MAX_UNKNOWN=5
           for i in {1..60}; do
             STATUS=$(gcloud builds describe "$BUILD_ID" --format='value(status)' 2>/dev/null || echo "UNKNOWN")
-            echo "⌛ Build status: $STATUS"
-            case "$STATUS" in
-              SUCCESS)
-                echo "✅ Cloud Build succeeded"
-                exit 0
-                ;;
-              FAILURE|TIMEOUT|CANCELLED)
-                echo "❌ Cloud Build failed: $STATUS"
-                exit 1
-                ;;
-              UNKNOWN)
-                echo "⚠️ Build status unknown, retrying..."
-                UNKNOWN_COUNT=$((UNKNOWN_COUNT+1))
-                if [[ "$UNKNOWN_COUNT" -ge "$MAX_UNKNOWN" ]]; then
-                  echo "❌ Too many UNKNOWN responses from gcloud. Exiting..."
-                  exit 1
-                fi
-                ;;
-            esac
+            echo "Build status: $STATUS"
+            if [[ "$STATUS" == "SUCCESS" ]]; then
+              echo "Build succeeded"
+              exit 0
+            elif [[ "$STATUS" == "FAILURE" || "$STATUS" == "TIMEOUT" || "$STATUS" == "CANCELLED" ]]; then
+              echo "Build failed: $STATUS"
+              exit 1
+            fi
             sleep 10
           done
 
-          echo "❌ Build timed out after 5 minutes."
+          echo "Build timed out after 5 minutes."
           exit 1

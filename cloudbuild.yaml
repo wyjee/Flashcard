@@ -1,3 +1,5 @@
+serviceAccount: github-deployer@flashcard-project-2025.iam.gserviceaccount.com
+
 substitutions:
   _CLUSTER_NAME: "flashcard-cluster"
   _CLUSTER_REGION: "asia-northeast3-a"
