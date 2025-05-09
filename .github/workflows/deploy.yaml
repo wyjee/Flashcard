@@ -46,18 +46,30 @@ jobs:
 
           echo "Build Logs: https://console.cloud.google.com/cloud-build/builds/$BUILD_ID?project=flashcard-project-2025"
 
+          UNKNOWN_COUNT=0
+          MAX_UNKNOWN=5
           for i in {1..60}; do
             STATUS=$(gcloud builds describe "$BUILD_ID" --format='value(status)' 2>/dev/null || echo "UNKNOWN")
-            echo "Build status: $STATUS"
-            if [[ "$STATUS" == "SUCCESS" ]]; then
-              echo "Build succeeded"
-              exit 0
-            elif [[ "$STATUS" == "FAILURE" || "$STATUS" == "TIMEOUT" || "$STATUS" == "CANCELLED" ]]; then
-              echo "Build failed: $STATUS"
-              exit 1
-            fi
+            echo "⌛ Build status: $STATUS"
+            case "$STATUS" in
+              SUCCESS)
+                echo "Build succeeded"
+                break
+                ;;
+              FAILURE|TIMEOUT|CANCELLED)
+                echo "Build failed: $STATUS"
+                exit 1
+                ;;
+              UNKNOWN)
+                UNKNOWN_COUNT=$((UNKNOWN_COUNT+1))
+                echo "Build status unknown ($UNKNOWN_COUNT/$MAX_UNKNOWN)..."
+                if [[ "$UNKNOWN_COUNT" -ge "$MAX_UNKNOWN" ]]; then
+                  echo "Too many unknown responses."
+                  exit 1
+                fi
+                ;;
+            esac
             sleep 10
           done
 
-          echo "Build timed out after 5 minutes."
-          exit 1
+          echo "Build monitoring complete."
