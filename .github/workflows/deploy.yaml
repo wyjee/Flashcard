@@ -42,7 +42,7 @@ jobs:
             --service-account=projects/flashcard-project-2025/serviceAccounts/github-deployer@flashcard-project-2025.iam.gserviceaccount.com \
             --format='json' . | tee "$BUILD_OUTPUT"
 
-          BUILD_ID=$(jq -r '.metadata.build.id' "$BUILD_OUTPUT")
+          BUILD_ID=$(jq -r '.metadata.build.id // .id' "$BUILD_OUTPUT")
 
           if [[ -z "$BUILD_ID" || "$BUILD_ID" == "null" ]]; then
             echo "❌ Failed to submit build. No BUILD_ID received."
