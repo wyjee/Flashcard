@@ -22,6 +22,9 @@ jobs:
         with:
           project_id: flashcard-project-2025
 
+      - name: Check Active Account
+        run: gcloud auth list
+
       - name: Trigger Cloud Build and Monitor
         run: |
           set -e
@@ -47,6 +50,12 @@ jobs:
           fi
 
           echo "🔗 Build Logs: https://console.cloud.google.com/cloud-build/builds/$BUILD_ID?project=flashcard-project-2025"
+
+          # ✅ 실제 사용된 서비스 계정?
+          echo "🔍 Checking which service account was used..."
+          gcloud builds describe "$BUILD_ID" --project=flashcard-project-2025 \
+            --format="value(serviceAccount)"
+
           echo "⏳ Waiting for Cloud Build to complete..."
           UNKNOWN_COUNT=0
           MAX_UNKNOWN=5
