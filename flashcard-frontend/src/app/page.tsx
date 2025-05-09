@@ -14,7 +14,7 @@ export default function Home() {
 
     return (
         <PageWrapper title={name} showCreateTopicButton={!!currentUser}>
-            <main>
+            <main className="space-y-4">
                 {/* 학습 통계 요약 컴포넌트 */}
                 {topics.map((topic) => <TopicListItem key={topic.id} topic={topic}/>)}
             </main>
