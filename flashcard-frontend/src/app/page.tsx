@@ -5,7 +5,7 @@ import {useTopics} from "@/hooks/useTopics";
 import {useCurrentUser} from "@/hooks/useCurrentUser";
 
 export default function Home() {
-    const name = 'Home'
+    const name = 'Topics (updated v18...)'
     const {data: currentUser} = useCurrentUser();
     const {data: topics, isLoading, isError} = useTopics();
 
