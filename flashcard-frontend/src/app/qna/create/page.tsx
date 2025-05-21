@@ -56,7 +56,13 @@ export default function CreateQnaPage() {
     };
 
     const addQna = () => {
-        setQnas([...qnas, {question: '', answer: ''}]);
+        setQnas([...qnas, {
+            question: '',
+            answer: '',
+            type: 'text',
+            options: [],
+            correctAnswers: [],
+        }]);
     };
 
     const handleSubmit = (e: React.FormEvent) => {
@@ -76,6 +82,14 @@ export default function CreateQnaPage() {
                             className="w-full mb-2 border px-4 py-2 rounded"
                             required
                         />
+                        <select
+                            value={qna.type || 'text'}
+                            onChange={(e) => handleChange(idx, 'type', e.target.value as 'text' | 'multiple')}
+                            className="w-full mb-2 border px-4 py-2 rounded"
+                        >
+                            <option value="text">기본 문제</option>
+                            <option value="multiple">다중 선택 문제</option>
+                        </select>
                         <textarea
                             placeholder="Answer"
                             value={qna.answer}
@@ -83,6 +97,53 @@ export default function CreateQnaPage() {
                             className="w-full border px-4 py-2 rounded"
                             required
                         />
+                        {qna.type === 'multiple' && (
+                            <div className="space-y-2">
+                                {qna.options?.map((opt, optIdx) => {
+                                    const label = String.fromCharCode(65 + optIdx);
+                                    const isCorrect = qna.correctAnswers?.includes(label);
+                                    return (
+                                        <div key={optIdx} className="flex items-center gap-2">
+                                            <input
+                                                className="flex-1 border rounded px-2 py-1"
+                                                placeholder={`옵션 ${label}`}
+                                                value={opt}
+                                                onChange={(e) => {
+                                                    const updatedOptions = [...(qna.options || [])];
+                                                    updatedOptions[optIdx] = e.target.value;
+                                                    handleChange(idx, 'options', updatedOptions);
+                                                }}
+                                            />
+                                            <button
+                                                type="button"
+                                                className={`px-2 py-1 rounded ${isCorrect ? 'bg-green-500 text-white' : 'bg-gray-200'}`}
+                                                onClick={() => {
+                                                    const updated = new Set(qna.correctAnswers || []);
+                                                    if (updated.has(label)) {
+                                                        updated.delete(label);
+                                                    } else {
+                                                        updated.add(label);
+                                                    }
+                                                    handleChange(idx, 'correctAnswers', Array.from(updated));
+                                                }}
+                                            >
+                                                정답
+                                            </button>
+                                        </div>
+                                    );
+                                })}
+                                <button
+                                    type="button"
+                                    className="text-sm text-blue-600"
+                                    onClick={() => {
+                                        const updatedOptions = [...(qna.options || []), ''];
+                                        handleChange(idx, 'options', updatedOptions);
+                                    }}
+                                >
+                                    + 옵션 추가
+                                </button>
+                            </div>
+                        )}
                     </div>
                 ))}
                 <button
