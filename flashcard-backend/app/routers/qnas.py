@@ -26,6 +26,9 @@ def create_qna(
         topic_id=qna.topic_id,
         question=qna.question,
         answer=qna.answer,
+        type=qna.type,
+        options=qna.options,
+        correct_answers=qna.correct_answers
     )
     db.add(new_qna)
     db.commit()

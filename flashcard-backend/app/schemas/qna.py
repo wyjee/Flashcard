@@ -6,6 +6,9 @@ from app.schemas.material import MaterialOut
 class QNABase(BaseModel):
     question: str
     answer: str
+    type: Optional[str] = "text"
+    options: Optional[List[str]] = None
+    correct_answers: Optional[List[str]] = None
 
 class QNACreate(QNABase):
     topic_id: int

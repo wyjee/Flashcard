@@ -52,6 +52,9 @@ def create_multiple_qnas(
             topic_id=topic_id,
             question=qna.question,
             answer=qna.answer,
+            type=qna.type,
+            options=qna.options,
+            correct_answers=qna.correct_answers
         )
         db.add(new_qna)
         updated_list.append(new_qna)
