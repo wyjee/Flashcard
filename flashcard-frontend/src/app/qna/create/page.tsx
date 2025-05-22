@@ -61,7 +61,7 @@ export default function CreateQnaPage() {
             answer: '',
             type: 'text',
             options: [],
-            correctAnswers: [],
+            correct_answers: [],
         }]);
     };
 
@@ -101,7 +101,7 @@ export default function CreateQnaPage() {
                             <div className="space-y-2">
                                 {qna.options?.map((opt, optIdx) => {
                                     const label = String.fromCharCode(65 + optIdx);
-                                    const isCorrect = qna.correctAnswers?.includes(label);
+                                    const isCorrect = qna.correct_answers?.includes(label);
                                     return (
                                         <div key={optIdx} className="flex items-center gap-2">
                                             <input
@@ -118,13 +118,13 @@ export default function CreateQnaPage() {
                                                 type="button"
                                                 className={`px-2 py-1 rounded ${isCorrect ? 'bg-green-500 text-white' : 'bg-gray-200'}`}
                                                 onClick={() => {
-                                                    const updated = new Set(qna.correctAnswers || []);
+                                                    const updated = new Set(qna.correct_answers || []);
                                                     if (updated.has(label)) {
                                                         updated.delete(label);
                                                     } else {
                                                         updated.add(label);
                                                     }
-                                                    handleChange(idx, 'correctAnswers', Array.from(updated));
+                                                    handleChange(idx, 'correct_answers', Array.from(updated));
                                                 }}
                                             >
                                                 정답

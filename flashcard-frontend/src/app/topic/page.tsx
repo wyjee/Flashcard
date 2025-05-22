@@ -58,7 +58,7 @@ export default function TopicDetailPage() {
         let correct = 0;
         qnas.forEach((qna, i) => {
             const user = new Set(userAnswers[i] || []);
-            const correctSet = new Set(qna.correctAnswers || []);
+            const correctSet = new Set(qna.correct_answers || []);
             if (user.size === correctSet.size && [...user].every(a => correctSet.has(a))) {
                 correct += 1;
             }

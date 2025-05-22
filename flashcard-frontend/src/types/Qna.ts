@@ -4,4 +4,5 @@ export type Qna = {
     answer: string;
     type?: string;
     options?: string[];
+    correct_answers: string[];
 }
