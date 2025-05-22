@@ -1,6 +1,6 @@
 'use client';
 
-import {useEffect, useState} from 'react';
+import {useEffect, useState, useMemo} from 'react';
 import {useRouter, useSearchParams} from 'next/navigation';
 import {AnimatePresence} from 'framer-motion';
 import {useTopicDetail} from '@/hooks/useTopicDetail';
@@ -16,24 +16,25 @@ export default function TopicDetailPage() {
     const [currentIndex, setCurrentIndex] = useState(0);
     const [topicTitle, setTopicTitle] = useState('');
     const {data: topicDetail, isLoading, isError} = useTopicDetail(Number(topicId));
+    const qnas = useMemo(() => topicDetail?.qnas || [], [topicDetail]);
     const deleteTopic = useDeleteTopic();
 
     const [userAnswers, setUserAnswers] = useState<Record<number, string[]>>({});
     const [isComplete, setIsComplete] = useState(false);
+    const isMultipleChoiceQuestion = useMemo(() => qnas[currentIndex]?.type === 'multiple', [qnas, currentIndex])
 
     useEffect(() => {
         if (topicDetail) {
             setCurrentIndex(0);
             setTopicTitle(topicDetail.title || '');
-            const shuffledQnas = [...topicDetail.qnas].sort(() => Math.random() - 0.5);
+            const shuffledQnas = [...qnas].sort(() => Math.random() - 0.5);
             topicDetail.qnas = shuffledQnas;
         }
-    }, [topicDetail]);
+    }, [qnas, topicDetail]);
 
     if (isLoading) return <p>Loading...</p>;
     if (isError || !topicDetail?.qnas?.length) return <p>No QNAs available.</p>;
 
-    const qnas = topicDetail.qnas;
     const handleNext = () => {
         setCurrentIndex((prev) => (prev + 1 < qnas.length ? prev + 1 : prev));
     };
@@ -56,11 +57,16 @@ export default function TopicDetailPage() {
 
     const handleSubmitAnswers = () => {
         let correct = 0;
+
         qnas.forEach((qna, i) => {
             const user = new Set(userAnswers[i] || []);
-            const correctSet = new Set(qna.correct_answers || []);
+            console.log('@userAnswers', user)
+            const correctSet = new Set((qna.correct_answers || []).map(String));
+            console.log('@correctSet', qna.correct_answers, correctSet)
+            console.log('User:', user, 'Correct:', correctSet);
             if (user.size === correctSet.size && [...user].every(a => correctSet.has(a))) {
                 correct += 1;
+                console.log('corrent+=1')
             }
         });
         alert(`점수: ${correct} / ${qnas.length}`);
@@ -89,29 +95,38 @@ export default function TopicDetailPage() {
 
             {!isError && !isLoading && (
                 <>
-                    <div className="relative w-full h-[300px] flex items-center justify-center overflow-hidden">
+                    <div
+                        className={`relative w-ful flex items-center justify-center overflow-hidden ${isMultipleChoiceQuestion ? '' : '  h-[300px]'}`}>
                         <AnimatePresence mode="wait">
                             {qnas && qnas.length > 0 ? (
                                 (() => {
                                     const qna = qnas[currentIndex];
                                     return (
                                         <div className="w-full">
-                                            <QnaItem qna={qna}/>
-                                            {qna.type === 'multiple' && qna.options?.map((opt, i) => {
-                                                const label = String.fromCharCode(65 + i);
-                                                const selected = userAnswers[currentIndex]?.includes(label);
-                                                return (
-                                                    <button
-                                                        key={i}
-                                                        onClick={() => handleSelectAnswer(currentIndex, label)}
-                                                        className={`block w-full text-left px-4 py-2 border my-1 rounded ${
-                                                            selected ? 'bg-blue-500 text-white' : 'bg-gray-100'
-                                                        }`}
-                                                    >
-                                                        {label}. {opt}
-                                                    </button>
-                                                );
-                                            })}
+                                            {!isMultipleChoiceQuestion && <QnaItem qna={qna}/>}
+                                            {isMultipleChoiceQuestion && (
+                                                <>
+
+                                                    <div
+                                                        className="relative w-full h-full backface-hidden bg-white border rounded-xl shadow-lg p-6 flex flex-col justify-center items-center text-center mb-10">
+                                                        <h2 className="text-lg font-bold mb-2">{qna.question}</h2>
+                                                    </div>
+                                                    {qna.options?.map((opt, i) => {
+                                                        const label = String.fromCharCode(65 + i);
+                                                        const selected = userAnswers[currentIndex]?.includes(label);
+                                                        return (
+                                                            <button
+                                                                key={i}
+                                                                onClick={() => handleSelectAnswer(currentIndex, label)}
+                                                                className={`block w-full text-left px-4 py-2 border my-1 rounded ${
+                                                                    selected ? 'bg-blue-500 text-white' : 'bg-gray-100'
+                                                                }`}
+                                                            >
+                                                                {label}. {opt}
+                                                            </button>
+                                                        );
+                                                    })}</>
+                                            )}
                                         </div>
                                     );
                                 })()

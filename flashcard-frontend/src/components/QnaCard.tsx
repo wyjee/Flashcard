@@ -53,7 +53,7 @@ export default function QnaCard({
                         onSwipeNext();
                     } else if (offsetY > 100) {
                         setDirection('down');
-                        onSwipePrev(); // ✅ 아래 → 이전 카드
+                        onSwipePrev();
                     }
                 }
             }}
