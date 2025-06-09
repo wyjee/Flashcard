@@ -70,6 +70,38 @@ export default function CreateQnaPage() {
         mutation.mutate();
     };
 
+    const handleChangeOption = (event: React.ChangeEvent<HTMLInputElement>,
+                                qna: Qna,
+                                idx: number,
+                                optIdx: number) => {
+        const updatedOptions = [...(qna.options || [])];
+        updatedOptions[optIdx] = event.target.value;
+        handleChange(idx, 'options', updatedOptions);
+    }
+
+    const setQnaMultipleAnswers = (qna: Qna,
+                                   idx: number,
+                                   label: string) => {
+        const updated = new Set(qna.correct_answers || []);
+        if (updated.has(label)) {
+            updated.delete(label);
+        } else {
+            updated.add(label);
+        }
+        handleChange(idx, 'correct_answers', Array.from(updated));
+    }
+
+    const handleDeleteOption = (qna: Qna,
+                                idx: number,
+                                optIdx: number,
+                                label: string) => {
+        const updatedOptions = [...(qna.options || [])];
+        updatedOptions.splice(optIdx, 1);
+        const updatedAnswers = (qna.correct_answers || []).filter(a => a !== label);
+        handleChange(idx, 'options', updatedOptions);
+        handleChange(idx, 'correct_answers', updatedAnswers);
+    }
+
     return (
         <PageWrapper title="Create QnAs">
             <form onSubmit={handleSubmit} className="max-w-md mx-auto space-y-4 mt-6">
@@ -90,13 +122,13 @@ export default function CreateQnaPage() {
                             <option value="text">기본 문제</option>
                             <option value="multiple">다중 선택 문제</option>
                         </select>
-                        <textarea
+                        {qna.type !== 'multiple' && <textarea
                             placeholder="Answer"
                             value={qna.answer}
                             onChange={(e) => handleChange(idx, 'answer', e.target.value)}
                             className="w-full border px-4 py-2 rounded"
                             required
-                        />
+                        />}
                         {qna.type === 'multiple' && (
                             <div className="space-y-2">
                                 {qna.options?.map((opt, optIdx) => {
@@ -108,26 +140,21 @@ export default function CreateQnaPage() {
                                                 className="flex-1 border rounded px-2 py-1"
                                                 placeholder={`옵션 ${label}`}
                                                 value={opt}
-                                                onChange={(e) => {
-                                                    const updatedOptions = [...(qna.options || [])];
-                                                    updatedOptions[optIdx] = e.target.value;
-                                                    handleChange(idx, 'options', updatedOptions);
-                                                }}
+                                                onChange={(e) => handleChangeOption(e, qna, idx, optIdx)}
                                             />
                                             <button
                                                 type="button"
                                                 className={`px-2 py-1 rounded ${isCorrect ? 'bg-green-500 text-white' : 'bg-gray-200'}`}
-                                                onClick={() => {
-                                                    const updated = new Set(qna.correct_answers || []);
-                                                    if (updated.has(label)) {
-                                                        updated.delete(label);
-                                                    } else {
-                                                        updated.add(label);
-                                                    }
-                                                    handleChange(idx, 'correct_answers', Array.from(updated));
-                                                }}
+                                                onClick={() => setQnaMultipleAnswers(qna, idx, label)}
                                             >
                                                 정답
+                                            </button>
+                                            <button
+                                                type="button"
+                                                className="text-red-500 text-sm"
+                                                onClick={() => handleDeleteOption(qna, idx, optIdx, label)}
+                                            >
+                                                ❌
                                             </button>
                                         </div>
                                     );

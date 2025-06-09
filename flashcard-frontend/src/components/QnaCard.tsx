@@ -7,7 +7,7 @@ import type {Qna} from '@/types/Qna'
 export default function QnaCard({
                                     qna,
                                     onSwipeNext,
-                                    onSwipePrev,
+                                    onSwipePrev
                                 }: {
     qna: Qna;
     onSwipeNext: () => void;

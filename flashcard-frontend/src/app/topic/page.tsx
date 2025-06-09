@@ -60,13 +60,9 @@ export default function TopicDetailPage() {
 
         qnas.forEach((qna, i) => {
             const user = new Set(userAnswers[i] || []);
-            console.log('@userAnswers', user)
             const correctSet = new Set((qna.correct_answers || []).map(String));
-            console.log('@correctSet', qna.correct_answers, correctSet)
-            console.log('User:', user, 'Correct:', correctSet);
             if (user.size === correctSet.size && [...user].every(a => correctSet.has(a))) {
                 correct += 1;
-                console.log('corrent+=1')
             }
         });
         alert(`점수: ${correct} / ${qnas.length}`);
@@ -103,7 +99,11 @@ export default function TopicDetailPage() {
                                     const qna = qnas[currentIndex];
                                     return (
                                         <div className="w-full">
-                                            {!isMultipleChoiceQuestion && <QnaItem qna={qna}/>}
+                                            {!isMultipleChoiceQuestion && <QnaItem
+                                                qna={qna}
+                                                onSwipeNext={handleNext}
+                                                onSwipePrev={handlePrev}
+                                            />}
                                             {isMultipleChoiceQuestion && (
                                                 <>
 
@@ -178,9 +178,9 @@ export default function TopicDetailPage() {
                     <MoreVertical/>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent>
+                    <DropdownMenuItem onClick={() => router.push('/')}>Go to Home</DropdownMenuItem>
                     <DropdownMenuItem onClick={handleEditTopic}>Edit Topic</DropdownMenuItem>
                     <DropdownMenuItem onClick={handleDeleteTopic}>Delete Topic</DropdownMenuItem>
-                    <DropdownMenuItem onClick={() => router.push('/')}>Go to Home</DropdownMenuItem>
                 </DropdownMenuContent>
             </DropdownMenu>
         </div>
