@@ -1,0 +1,19 @@
+apiVersion: apps/v2
+kind: Deployment
+metadata:
+  name: backend-green
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: backend-green
+  template:
+    metadata:
+      labels:
+        app: backend-green
+    spec:
+      containers:
+        - name: backend
+          image: backend-green:v1
+          ports:
+            - containerPort: 8000

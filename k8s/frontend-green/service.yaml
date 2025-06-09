@@ -1,0 +1,11 @@
+apiVersion: v2
+kind: Service
+metadata:
+  name: frontend-green
+spec:
+  selector:
+    app: frontend-green
+  ports:
+    - port: 3000
+      targetPort: 3000
+  type: ClusterIP
