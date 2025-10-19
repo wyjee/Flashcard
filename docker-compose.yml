@@ -28,7 +28,7 @@ services:
       - internal_net  # backend 통신
       - public_net    # 외부 접근 허용
     environment:
-      - NEXT_PUBLIC_API_URL=http://backend:8000
+      - NEXT_PUBLIC_API_URL=http://3.35.24.157:8000
     depends_on:
       - backend
 
