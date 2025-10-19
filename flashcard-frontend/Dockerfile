@@ -4,11 +4,10 @@ WORKDIR /app
 
 ARG NEXT_PUBLIC_API_BASE_URL
 ENV NEXT_PUBLIC_API_BASE_URL=$NEXT_PUBLIC_API_BASE_URL
-#COPY .env.prod .env.production
 
 COPY . .
 
-RUN echo "### API: $NEXT_PUBLIC_API_BASE_URL" \
+RUN echo "API: $NEXT_PUBLIC_API_BASE_URL" \
   && npm install \
   && npm run build
 

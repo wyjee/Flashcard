@@ -34,7 +34,10 @@ services:
       - DB_NAME=${DB_NAME}
 
   frontend:
-    build: ./flashcard-frontend
+    build:
+      context: ./flashcard-frontend
+      args:
+        NEXT_PUBLIC_API_BASE_URL: /api
     container_name: flashcard-frontend
     env_file: ./flashcard-frontend/.env.prod
     ports:
