@@ -1,0 +1,52 @@
+version: "3.8"
+
+services:
+  backend:
+    build: ./flashcard-backend
+    container_name: flashcard-backend
+    env_file: ./flashcard-backend/.env.prod
+    expose:
+      - "8000"
+    networks:
+      - internal_net
+    depends_on:
+      - redis
+    environment:
+      - DB_HOST=${DB_HOST}
+      - DB_PORT=${DB_PORT}
+      - DB_USER=${DB_USER}
+      - DB_PASS=${DB_PASS}
+      - DB_NAME=${DB_NAME}
+
+  frontend:
+    build: ./flashcard-frontend
+    container_name: flashcard-frontend
+    env_file: ./flashcard-frontend/.env.prod
+    ports:
+      - "80:3000"
+    networks:
+      - internal_net  # backend 통신
+      - public_net    # 외부 접근 허용
+    environment:
+      - NEXT_PUBLIC_API_URL=http://backend:8000
+    depends_on:
+      - backend
+
+  redis:
+    image: redis:7
+    container_name: flashcard-redis
+    expose:
+      - "6379"
+    networks:
+      - internal_net
+    healthcheck:
+      test: [ "CMD", "redis-cli", "ping" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+networks:
+  internal_net:
+    driver: bridge
+  public_net:
+    driver: bridge
