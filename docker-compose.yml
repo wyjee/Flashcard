@@ -38,7 +38,7 @@ services:
     container_name: flashcard-frontend
     env_file: ./flashcard-frontend/.env.prod
     ports:
-      - "80:3000"
+      - "3000"
     networks:
       - internal_net  # backend 통신
       - public_net    # 외부 접근 허용
