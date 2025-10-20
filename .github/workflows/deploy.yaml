@@ -26,7 +26,7 @@ jobs:
       - name: Send deploy command via SSM
         run: |
           INSTANCE_ID=$(aws ec2 describe-instances \
-            --filters "Name=tag:Name,Values=flashcard-server" \
+            --filters "Name=tag:Name,Values=flashcard" \
             --query "Reservations[].Instances[].InstanceId" \
             --output text)
 
