@@ -92,7 +92,7 @@ export default function TopicDetailPage() {
             {!isError && !isLoading && (
                 <>
                     <div
-                        className={`relative w-ful flex items-center justify-center overflow-hidden ${isMultipleChoiceQuestion ? '' : '  h-[300px]'}`}>
+                        className={`relative w-full flex items-center justify-center overflow-hidden ${isMultipleChoiceQuestion ? '' : '  h-[300px]'}`}>
                         <AnimatePresence mode="wait">
                             {qnas && qnas.length > 0 ? (
                                 (() => {
