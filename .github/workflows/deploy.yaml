@@ -37,8 +37,5 @@ jobs:
             --document-name "AWS-RunShellScript" \
             --comment "Deploy Flashcard app" \
             --parameters 'commands=[
-              "cd /app/flashcard",
-              "git pull origin dev",
-              "docker compose down",
-              "docker compose up -d --build"
+              "cd /app/flashcard && git pull origin dev && docker compose down && docker compose up -d --build"
             ]'
