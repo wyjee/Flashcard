@@ -7,6 +7,7 @@ import {useCurrentUser} from '@/hooks/useCurrentUser';
 import ProfileMenu from '@/components/ProfileMenu';
 import LogoutDialog from '@/components/LogoutDialog';
 import {usePathname} from 'next/navigation';
+// import ImportToeflButton from "@/components/common/ImportToeflButton";
 
 type PageWrapperProps = {
     title: string;
@@ -21,7 +22,7 @@ const PageWrapper = ({
                          showCreateTopicButton = false,
                          children,
                      }: PageWrapperProps) => {
-    const { data: currentUser } = useCurrentUser();
+    const {data: currentUser} = useCurrentUser();
     const pathname = usePathname();
 
     const [showLogoutDialog, setShowLogoutDialog] = useState(false);
@@ -40,7 +41,7 @@ const PageWrapper = ({
                             className="absolute left-6 top-1/2 -translate-y-1/2 text-gray-600"
                             title="Go Home"
                         >
-                            <Home size={24} />
+                            <Home size={24}/>
                         </Link>
                     )}
 
@@ -52,7 +53,7 @@ const PageWrapper = ({
                     {/* 우측 프로필 버튼 */}
                     {showProfileButton && currentUser && (
                         <div className="absolute right-6 top-1/2 -translate-y-1/2">
-                            <ProfileMenu onLogoutClick={openDialog} />
+                            <ProfileMenu onLogoutClick={openDialog}/>
                         </div>
                     )}
 
@@ -62,7 +63,7 @@ const PageWrapper = ({
                             className="absolute right-6 top-1/2 -translate-y-1/2 text-gray-600"
                             title="Login"
                         >
-                            <User size={24} />
+                            <User size={24}/>
                         </Link>
                     )}
                 </header>
@@ -75,12 +76,15 @@ const PageWrapper = ({
                         className="fixed bottom-6 right-6 bg-gray-600 text-white p-3 rounded-full shadow-lg transition"
                         title="Create Topic"
                     >
-                        <Plus size={20} />
+                        <Plus size={20}/>
                     </Link>
                 )}
+                {/*<div className="fixed bottom-6 right-6 bg-gray-600 text-white p-3 rounded-full shadow-lg transition">*/}
+                {/*    <ImportToeflButton/>*/}
+                {/*</div>*/}
             </div>
 
-            <LogoutDialog open={showLogoutDialog} onClose={closeDialog} />
+            <LogoutDialog open={showLogoutDialog} onClose={closeDialog}/>
         </>
     );
 };
